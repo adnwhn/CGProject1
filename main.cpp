@@ -113,6 +113,7 @@ double timp = 0.15;
 int pct = 1000;
 //double rsj, rdj, rss, rds = 0;
 
+/*
 void drawStar(double xStart, double yStart)
 {
     glLineWidth(1.0);
@@ -137,6 +138,7 @@ void drawStar(double xStart, double yStart)
 
     glEnd();
 }
+*/
 
 void init(void)
 {
@@ -194,9 +196,9 @@ void drawScene(void)
     // * 4 lanes
     // * 5 delimiters
 
+    // 1st delimiter
     glColor3f(0.3, 0.28, 0.4);
 
-    // 1st delimiter
     glBegin(GL_POLYGON);
     glVertex2i(0, 0); // down left
     glVertex2i(800, 0); // down right
@@ -205,11 +207,53 @@ void drawScene(void)
     glEnd();
 
     // stars on 1st
-    drawStar(20, 15);
+ 
+    //drawStar(20, 15);
 
-    glColor3f(0.3, 0.28, 0.4);
+    // rhombus body
+    glColor3f(1.0, 1.0, 1.0);
+    glBegin(GL_POLYGON);
+    glVertex2i(15, 20);
+    glVertex2i(20, 15); 
+    glVertex2i(25, 20);
+    glVertex2i(20, 25); 
+    glEnd();
+
+    // rhombus center
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_POLYGON);
+    glVertex2i(17.5, 20);
+    glVertex2i(20, 17.5);
+    glVertex2i(22.5, 20);
+    glVertex2i(22.5, 22.5);
+    glEnd();
+    
+    // triangles
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_POLYGON);
+    glVertex2i(15, 20);
+    glVertex2i(16, 19);
+    glVertex2i(16, 21);
+    glEnd();
+    glBegin(GL_POLYGON);
+    glVertex2i(25, 20);
+    glVertex2i(24, 19);
+    glVertex2i(24, 21);
+    glEnd();
+    glBegin(GL_POLYGON);
+    glVertex2i(20, 25);
+    glVertex2i(19, 24);
+    glVertex2i(21, 24);
+    glEnd();
+    glBegin(GL_POLYGON);
+    glVertex2i(20, 15);
+    glVertex2i(19, 16);
+    glVertex2i(21, 16);
+    glEnd();
 
     // 2nd delimiter
+    glColor3f(0.3, 0.28, 0.4);
+    
     glBegin(GL_POLYGON);
     glVertex2i(0, 190); // down left
     glVertex2i(800, 190); // down right
@@ -218,6 +262,8 @@ void drawScene(void)
     glEnd();
 
     // 3rd delimiter
+    glColor3f(0.3, 0.28, 0.4);
+
     glBegin(GL_POLYGON);
     glVertex2i(0, 380); // down left
     glVertex2i(800, 380); // down right
@@ -226,6 +272,8 @@ void drawScene(void)
     glEnd();
 
     // 4th delimiter
+    glColor3f(0.3, 0.28, 0.4);
+
     glBegin(GL_POLYGON);
     glVertex2i(0, 570); // down left
     glVertex2i(800, 570); // down right
@@ -234,6 +282,8 @@ void drawScene(void)
     glEnd();
 
     // 5th delimiter
+    glColor3f(0.3, 0.28, 0.4);
+
     glBegin(GL_POLYGON);
     glVertex2i(0, 760); // down left
     glVertex2i(800, 760); // down right
@@ -296,7 +346,7 @@ void drawScene(void)
     glPopMatrix();
     */
 
-    //desenam racheta
+    //draw rocket
     glPushMatrix();
     glTranslated(0.0, j, 0.0);
 
