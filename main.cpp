@@ -1,5 +1,5 @@
 #include <iostream>
-#include<windows.h>
+#include <windows.h>
 #include <GL/freeglut.h>
 
 using namespace std;
@@ -26,6 +26,31 @@ int score = 0;
 double timp = 0.15;
 int pct = 1000;
 //double rsj, rdj, rss, rds = 0;
+
+void drawStar(double xStart, double yStart)
+{
+    glLineWidth(1.0);
+    glBegin(GL_LINES);
+    glColor3f(1.0, 1.0, 1.0);
+
+	//first bisection segment
+	glVertex2i(xStart, yStart);
+	glVertex2i(xStart + 10, yStart + 10);
+
+	//second bisection segment
+	glVertex2i(xStart + 10, yStart);
+	glVertex2i(xStart, yStart + 10);
+
+	//vertical segment
+	glVertex2i(xStart + 5, yStart);
+	glVertex2i(xStart + 5, yStart + 10);
+
+	//horizontal segment
+	glVertex2i(xStart, yStart + 5);
+	glVertex2i(xStart + 10, yStart + 5);
+
+    glEnd();
+}
 
 void init(void)
 {
@@ -92,6 +117,9 @@ void drawScene(void)
     glVertex2i(800, 40); // up right
     glVertex2i(0, 40); // up left
     glEnd();
+
+    // stars on 1st
+    drawStar(20, 15);
 
     // 2nd delimiter
     glBegin(GL_POLYGON);
