@@ -4,16 +4,102 @@
 
 using namespace std;
 
+
+
+//class Planet
+//{
+//public:
+//    
+//private:
+//
+//};
+
+
+class Object
+{
+public:
+    Object(GLdouble px, GLdouble py)
+    {
+        x = px;
+        y = py;
+    }
+
+    GLdouble GetX();
+    GLdouble GetY();
+    GLdouble SetX();
+    GLdouble SetY();
+private:
+    GLdouble x;
+    GLdouble y;
+};
+
+
+class GameHelper
+{
+public:
+    static bool CheckCollision(Object ob1, Object ob2);
+};
+
+bool GameHelper::CheckCollision(Object ob, Object ob2)
+{
+    return false;
+}
+
+struct Color
+{
+    GLfloat r;
+    GLfloat g;
+    GLfloat b;
+};
+
+
+class DisplayHelper
+{
+public:
+    //static Color GetBackgroundColor();
+
+private:
+    DisplayHelper() = delete;
+    //static Color bkgColor;
+
+};
+
+
+//Color DisplayHelper::GetBackgroundColor()
+//{
+//    return bkgColor;
+//}
+
+class Meteorite : public Object
+{
+public:
+    Meteorite() : Object(0.0, 0.0)
+    {};
+private:
+
+
+};
+
+class Rocket : public Object
+{
+public:
+    Rocket() : Object(0.0, 0.0)
+    {};
+    bool OnMeteoriteCrash(Meteorite& m);
+private:
+};
+
+bool Rocket::OnMeteoriteCrash(Meteorite& m)
+{
+    return true;
+}
+
+
 GLdouble left_m = 0.0;
 GLdouble right_m = 800.0;
 GLdouble bottom_m = 0.0;
 GLdouble top_m = 800.0;
-/*
-GLdouble left_m = -100.0;
-GLdouble right_m = 700.0;
-GLdouble bottom_m = -140.0;
-GLdouble top_m = 460.0;
-*/
+
 double ok = 1;
 double j = 40.0;
 double i = 0.0;
@@ -156,6 +242,8 @@ void drawScene(void)
     /*
     glColor3f(0.22, 0.2, 0.3); // grey
 
+
+
     // Iarba de jos
     glBegin(GL_POLYGON);
     glVertex2i(-100, -140); // Stanga jos
@@ -223,6 +311,8 @@ void drawScene(void)
     */
 
     glPopMatrix();
+
+
     glPopMatrix();
 
     if (ok == 0) {
