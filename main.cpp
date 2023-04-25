@@ -4,16 +4,102 @@
 
 using namespace std;
 
+
+
+//class Planet
+//{
+//public:
+//    
+//private:
+//
+//};
+
+
+class Object
+{
+public:
+    Object(GLdouble px, GLdouble py)
+    {
+        x = px;
+        y = py;
+    }
+
+    GLdouble GetX();
+    GLdouble GetY();
+    GLdouble SetX();
+    GLdouble SetY();
+private:
+    GLdouble x;
+    GLdouble y;
+};
+
+
+class GameHelper
+{
+public:
+    static bool CheckCollision(Object ob1, Object ob2);
+};
+
+bool GameHelper::CheckCollision(Object ob, Object ob2)
+{
+    return false;
+}
+
+struct Color
+{
+    GLfloat r;
+    GLfloat g;
+    GLfloat b;
+};
+
+
+class DisplayHelper
+{
+public:
+    //static Color GetBackgroundColor();
+
+private:
+    DisplayHelper() = delete;
+    //static Color bkgColor;
+
+};
+
+
+//Color DisplayHelper::GetBackgroundColor()
+//{
+//    return bkgColor;
+//}
+
+class Meteorite : public Object
+{
+public:
+    Meteorite() : Object(0.0, 0.0)
+    {};
+private:
+
+
+};
+
+class Rocket : public Object
+{
+public:
+    Rocket() : Object(0.0, 0.0)
+    {};
+    bool OnMeteoriteCrash(Meteorite& m);
+private:
+};
+
+bool Rocket::OnMeteoriteCrash(Meteorite& m)
+{
+    return true;
+}
+
+
 GLdouble left_m = 0.0;
 GLdouble right_m = 800.0;
 GLdouble bottom_m = 0.0;
 GLdouble top_m = 800.0;
-/*
-GLdouble left_m = -100.0;
-GLdouble right_m = 700.0;
-GLdouble bottom_m = -140.0;
-GLdouble top_m = 460.0;
-*/
+
 double ok = 1;
 double j = 40.0;
 double i = 0.0;
@@ -33,28 +119,28 @@ void drawStar(double xStart, double yStart)
     glBegin(GL_LINES);
     glColor3f(1.0, 1.0, 1.0);
 
-	//first bisection segment
-	glVertex2i(xStart, yStart);
-	glVertex2i(xStart + 10, yStart + 10);
+    //first bisection segment
+    glVertex2i(xStart, yStart);
+    glVertex2i(xStart + 10, yStart + 10);
 
-	//second bisection segment
-	glVertex2i(xStart + 10, yStart);
-	glVertex2i(xStart, yStart + 10);
+    //second bisection segment
+    glVertex2i(xStart + 10, yStart);
+    glVertex2i(xStart, yStart + 10);
 
-	//vertical segment
-	glVertex2i(xStart + 5, yStart);
-	glVertex2i(xStart + 5, yStart + 10);
+    //vertical segment
+    glVertex2i(xStart + 5, yStart);
+    glVertex2i(xStart + 5, yStart + 10);
 
-	//horizontal segment
-	glVertex2i(xStart, yStart + 5);
-	glVertex2i(xStart + 10, yStart + 5);
+    //horizontal segment
+    glVertex2i(xStart, yStart + 5);
+    glVertex2i(xStart + 10, yStart + 5);
 
     glEnd();
 }
 
 void init(void)
 {
-	glClearColor(0.22, 0.2, 0.3, 0.0);
+    glClearColor(0.22, 0.2, 0.3, 0.0);
     glMatrixMode(GL_PROJECTION);
     glOrtho(left_m, right_m, bottom_m, top_m, -1.0, 1.0);
 }
@@ -95,9 +181,9 @@ void startgame(void)
 
         glutPostRedisplay();
     }
-    else 
+    else
         ok = 0;
-    
+
 }
 
 void drawScene(void)
@@ -109,7 +195,7 @@ void drawScene(void)
     // * 5 delimiters
 
     glColor3f(0.3, 0.28, 0.4);
-   
+
     // 1st delimiter
     glBegin(GL_POLYGON);
     glVertex2i(0, 0); // down left
@@ -120,6 +206,8 @@ void drawScene(void)
 
     // stars on 1st
     drawStar(20, 15);
+
+    glColor3f(0.3, 0.28, 0.4);
 
     // 2nd delimiter
     glBegin(GL_POLYGON);
@@ -155,6 +243,8 @@ void drawScene(void)
 
     /*
     glColor3f(0.22, 0.2, 0.3); // grey
+
+
 
     // Iarba de jos
     glBegin(GL_POLYGON);
@@ -206,23 +296,68 @@ void drawScene(void)
     glPopMatrix();
     */
 
-    //desenam masina
+    //desenam racheta
     glPushMatrix();
     glTranslated(0.0, j, 0.0);
 
-    glColor3f(0.996, 0.365, 0.149);
-    glRecti(45, 15, 135, 45);
-    /*
-    if (ok == 0)
-    {
-        rsj = 8;
-        rss = -8;
-        rdj = -8;
-        rds = 8;
-    }
-    */
+
+    //start point 45, 15, 135, 45
+
+    // tip
+    glColor3f(0.996, 0.0, 0.0);
+    glBegin(GL_POLYGON);
+    glVertex2i(115, 20);
+    glVertex2i(115, 40);
+    glVertex2i(135, 30);
+    glEnd();
+
+    // sides
+    glColor3f(0.27, 0.26, 0.25);
+    glBegin(GL_POLYGON);
+    glVertex2i(65, 20);
+    glVertex2i(65, 15);
+    glVertex2i(70, 20);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glVertex2i(65, 40);
+    glVertex2i(65, 45);
+    glVertex2i(70, 40);
+    glEnd();
+
+    // back
+    glColor3f(0.3, 0.3, 0.4);
+    glRecti(58, 23, 65, 37);
+
+    // flames
+    glColor3f(0.82, 0.4, 0.03);
+    glBegin(GL_POLYGON);
+    glVertex2i(58, 23);
+    glVertex2f(53., 25.5);
+    glVertex2i(58, 28);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glVertex2i(58, 32);
+    glVertex2f(53., 34.5);
+    glVertex2i(58, 37);
+    glEnd();
+
+    glColor3f(0.82, 0.10, 0.03);
+    glBegin(GL_POLYGON);
+    glVertex2i(58, 28);
+    glVertex2i(45, 30);
+    glVertex2i(58, 32);
+    glEnd();
+
+
+    // body
+    glColor3f(0.26, 0.3, 0.4);
+    glRecti(65, 20, 115, 40);
 
     glPopMatrix();
+
+
     glPopMatrix();
 
     if (ok == 0) {
@@ -233,7 +368,7 @@ void drawScene(void)
         j = j + 1;
     else if (contor == -1 && (j != 420 && j != 230 && j != 40))
         j = j - 1;
-    else 
+    else
         contor = 0;
 
     //desenam a doua masina (adversara)
