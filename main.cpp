@@ -18,20 +18,45 @@ using namespace std;
 class Object
 {
 public:
+    Object()
+    {
+        x = 0.0;
+        y = 0.0;
+    }
     Object(GLdouble px, GLdouble py)
     {
         x = px;
         y = py;
     }
 
-    GLdouble GetX();
-    GLdouble GetY();
-    GLdouble SetX();
-    GLdouble SetY();
+    const GLdouble GetX();
+    void SetX(GLdouble newX);
+    const GLdouble GetY();
+    void SetY(GLdouble y);
 private:
     GLdouble x;
     GLdouble y;
 };
+
+const GLdouble Object::GetX()
+{
+    return x;
+}
+
+const GLdouble Object::GetY()
+{
+    return y;
+}
+
+void Object::SetX(GLdouble newX)
+{
+    x = newX;
+}
+
+void Object::SetY(GLdouble newY)
+{
+    y = newY;
+}
 
 
 class GameHelper
@@ -83,8 +108,12 @@ private:
 class Rocket : public Object
 {
 public:
-    Rocket() : Object(0.0, 0.0)
-    {};
+    Rocket();
+    Rocket(GLdouble x, GLdouble y)
+    {
+        SetX(x);
+        SetY(y);
+    }
     bool OnMeteoriteCrash(Meteorite& m);
 private:
 };
@@ -101,7 +130,6 @@ GLdouble bottom_m = 0.0;
 GLdouble top_m = 800.0;
 
 double ok = 1;
-double j = 40.0;
 double i = 0.0;
 double contor = 0;
 double loc_vert = 800;
@@ -111,6 +139,7 @@ double height = vector[rand() % 4];
 int score = 0;
 double timp = 0.15;
 int pct = 1000;
+Rocket r(0.0, 40.0);
 //double rsj, rdj, rss, rds = 0;
 
 /*
@@ -158,7 +187,7 @@ void RenderString(float x, float y, void* font, const unsigned char* string)
 void startgame(void)
 {
 
-    if (height != j || (loc_vert > 90 || loc_vert < -90))
+    if (height != r.GetY() || (loc_vert > 90 || loc_vert < -90))
     {
 
         if (i < -380)
@@ -207,16 +236,16 @@ void drawScene(void)
     glEnd();
 
     // stars on 1st
- 
+
     //drawStar(20, 15);
 
     // rhombus body
     glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_POLYGON);
     glVertex2i(15, 20);
-    glVertex2i(20, 15); 
+    glVertex2i(20, 15);
     glVertex2i(25, 20);
-    glVertex2i(20, 25); 
+    glVertex2i(20, 25);
     glEnd();
 
     // rhombus center
@@ -227,7 +256,7 @@ void drawScene(void)
     glVertex2i(22.5, 20);
     glVertex2i(22.5, 22.5);
     glEnd();
-    
+
     // triangles
     glColor3f(1.0, 1.0, 0.0);
     glBegin(GL_POLYGON);
@@ -253,7 +282,7 @@ void drawScene(void)
 
     // 2nd delimiter
     glColor3f(0.3, 0.28, 0.4);
-    
+
     glBegin(GL_POLYGON);
     glVertex2i(0, 190); // down left
     glVertex2i(800, 190); // down right
@@ -348,7 +377,7 @@ void drawScene(void)
 
     //draw rocket
     glPushMatrix();
-    glTranslated(0.0, j, 0.0);
+    glTranslated(r.GetX(), r.GetY(), 0.0);
 
 
     //start point 45, 15, 135, 45
@@ -414,10 +443,10 @@ void drawScene(void)
         RenderString(365.0f, 395.0f, GLUT_BITMAP_8_BY_13, (const unsigned char*)"GAME OVER");
     }
 
-    if (contor == 1 && (j != 230 && j != 420 && j != 610))
-        j = j + 1;
-    else if (contor == -1 && (j != 420 && j != 230 && j != 40))
-        j = j - 1;
+    if (contor == 1 && (r.GetY() != 230 && r.GetY() != 420 && r.GetY() != 610))
+        r.SetY(r.GetY() + 1);
+    else if (contor == -1 && (r.GetY() != 420 && r.GetY() != 230 && r.GetY() != 40))
+        r.SetY(r.GetY() - 1);
     else
         contor = 0;
 
@@ -451,10 +480,10 @@ void miscasus(void)
 {
     if (ok != 0)
     {
-        if (j < 610)
+        if (r.GetY() < 610)
         {
             contor = 1;
-            j += 1;
+            r.SetY(r.GetY() + 1);
         }
 
         glutPostRedisplay();
@@ -465,10 +494,10 @@ void miscajos(void)
 {
     if (ok != 0)
     {
-        if (j > 40)
+        if (r.GetY() > 40)
         {
             contor = -1;
-            j -= 1;
+            r.SetY(r.GetY() - 1);
         }
 
         glutPostRedisplay();
