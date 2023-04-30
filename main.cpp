@@ -1,42 +1,69 @@
-#include <iostream>
-#include <windows.h>
-#include <GL/freeglut.h>
+#include "Utils.cpp"
 
 using namespace std;
 
+#pragma once
 #pragma comment(lib, "Winmm.lib")
 
-//class Planet
-//{
-//public:
-//    
-//private:
-//
-//};
+
+GLdouble left_m = 0.0;
+GLdouble right_m = 800.0;
+GLdouble bottom_m = 0.0;
+GLdouble top_m = 800.0;
+
+double ok = 1;
+double i = 0.0;
+double contor = 0;
+double loc_vert = 800;
+int vector[4] = { 85, 275, 465, 655 };
+double height = vector[rand() % 4];
+int GameHelper::score = 0;
+double timp = 0.15;
+int pct = 1000;
+Rocket r(0.0, 85.0, 90.0, 30.0);
+Meteorite m(800., vector[rand() % 4], 30., 30.);
+int GameHelper::startGame = 0;
+char* DisplayHelper::sound_file = const_cast<char*>(".wav");
 
 
-class Object
+void GameHelper::SetStartGame(int sg) {
+    startGame = sg;
+}
+
+int GameHelper::GetStartGame() {
+    return startGame;
+}
+
+bool GameHelper::CheckCollision(Rocket ob, Meteorite ob2)
 {
-public:
-    Object()
-    {
-        x = 0.0;
-        y = 0.0;
-    }
-    Object(GLdouble px, GLdouble py)
-    {
-        x = px;
-        y = py;
-    }
+    return (ob2.GetY() == ob.GetY() && (m.GetX() > 45 && m.GetX() < 90));
+}
 
-    const GLdouble GetX();
-    void SetX(GLdouble newX);
-    const GLdouble GetY();
-    void SetY(GLdouble y);
-private:
-    GLdouble x;
-    GLdouble y;
-};
+Rocket::Rocket(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
+{
+    SetX(x);
+    SetY(y);
+    xDim = xdim;
+    yDim = ydim;
+}
+
+bool Rocket::OnMeteoriteCrash(Meteorite& m)
+{
+    return true;
+}
+
+Meteorite::Meteorite(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
+{
+    SetX(x);
+    SetY(y);
+    xDim = xdim;
+    yDim = ydim;
+}
+
+void DisplayHelper::StartMusic()
+{
+    PlaySound((LPCTSTR)sound_file, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+}
 
 const GLdouble Object::GetX()
 {
@@ -58,165 +85,8 @@ void Object::SetY(GLdouble newY)
     y = newY;
 }
 
-struct Color
-{
-    GLfloat r;
-    GLfloat g;
-    GLfloat b;
-};
 
 
-class DisplayHelper
-{
-public:
-    //static Color GetBackgroundColor();
-    static char* sound_file;
-    static void StartMusic();
-
-private:
-    DisplayHelper() = delete;
-    //static Color bkgColor;
-
-};
-
-void DisplayHelper::StartMusic()
-{
-    PlaySound((LPCTSTR)sound_file, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
-}
-
-//Color DisplayHelper::GetBackgroundColor()
-//{
-//    return bkgColor;
-//}
-
-class Meteorite : public Object
-{
-public:
-    Meteorite(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim);
-private:
-    GLdouble xDim;
-    GLdouble yDim;
-
-};
-
-Meteorite::Meteorite(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
-{
-    SetX(x);
-    SetY(y);
-    xDim = xdim;
-    yDim = ydim;
-}
-
-
-class Rocket : public Object
-{
-public:
-    Rocket(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim);
-    bool OnMeteoriteCrash(Meteorite& m);
-private:
-    GLdouble xDim;
-    GLdouble yDim;
-};
-
-Rocket::Rocket(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
-{
-    SetX(x);
-    SetY(y);
-    xDim = xdim;
-    yDim = ydim;
-}
-
-bool Rocket::OnMeteoriteCrash(Meteorite& m)
-{
-    return true;
-}
-
-class GameHelper
-{
-public:
-    static bool CheckCollision(Rocket ob1, Meteorite ob2);
-    static int score;
-    static int startGame;
-    static void SetStartGame(int sg);
-    static int GetStartGame();
-
-private:
-};
-
-void GameHelper::SetStartGame(int sg) {
-    startGame = sg;
-}
-
-int GameHelper::GetStartGame() {
-    return startGame;
-}
-
-bool GameHelper::CheckCollision(Rocket ob, Meteorite ob2)
-{
-    if (height != r.GetY() || (loc_vert > 90 || loc_vert < -90))
-    {
-
-        if (i < -380)
-            i = 0;
-        i = i - 2 * timp;
-
-        loc_vert -= timp;
-
-        if (loc_vert < -150)
-        {
-            GameHelper::score += 100;
-            height = vector[rand() % 4];
-            cout << "Score:  " << GameHelper::score << endl;
-            loc_vert = 800;
-        }
-
-        if (GameHelper::score >= pct && pct <= 15000)
-        {
-            timp += 0.1;
-            pct += 1000;
-        }
-
-        glutPostRedisplay();
-    }
-    else
-        ok = 0;
-
-
-
-    if (ob2.GetY() != ob.GetY() || (m.GetX() > 0 || m.GetX() < 0))
-    {
-        if (ob2.GetX() < -150)
-        {
-            score += 100;
-            ob2.SetY(vector[rand() % 4]);
-            // score
-
-            ob2.SetX(800.);
-        }
-    }
-}
-
-
-GLdouble left_m = 0.0;
-GLdouble right_m = 800.0;
-GLdouble bottom_m = 0.0;
-GLdouble top_m = 800.0;
-
-double ok = 1;
-double i = 0.0;
-double contor = 0;
-double loc_vert = 800;
-int vector[4] = { 40, 230, 420, 610 };
-//int vector[4] = {0, 160, 320, 480};
-double height = vector[rand() % 4];
-int GameHelper::score = 0;
-double timp = 0.15;
-int pct = 1000;
-Rocket r(0.0, 40.0, 90.0, 30.0);
-Meteorite m(800., vector[rand() % 4], 30., 30.);
-int GameHelper::startGame = 0;
-char* DisplayHelper::sound_file = const_cast<char*>(".wav");
-//double rsj, rdj, rss, rds = 0;
 
 /*
 void drawStar(double xStart, double yStart)
@@ -264,21 +134,25 @@ void RenderString(float x, float y, void* font, const unsigned char* string)
 void startgame(void)
 {
 
-    if (height != r.GetY() || (loc_vert > 90 || loc_vert < -90))
+    if (GameHelper::CheckCollision(r, m))
+    {
+        GameHelper::SetStartGame(2);
+    }
+    else
     {
 
         if (i < -380)
             i = 0;
         i = i - 2 * timp;
 
-        loc_vert -= timp;
+        m.SetX(m.GetX() - timp);
 
-        if (loc_vert < -150)
+        if (m.GetX() < -150)
         {
             GameHelper::score += 100;
-            height = vector[rand() % 4];
+            m.SetY(vector[rand() % 4]);
             cout << "Score:  " << GameHelper::score << endl;
-            loc_vert = 800;
+            m.SetX(800.);
         }
 
         if (GameHelper::score >= pct && pct <= 15000)
@@ -288,11 +162,6 @@ void startgame(void)
         }
 
         glutPostRedisplay();
-    }
-    else
-    {
-        ok = 0;
-        GameHelper::SetStartGame(2);
     }
 }
 
@@ -358,8 +227,8 @@ void drawScene(void)
         glVertex2i(600, 575);
         glVertex2i(625, 600);
         glVertex2i(600, 625);
-        glEnd(); 
-        
+        glEnd();
+
         //3rd down center
         // body
         glColor3f(0.8, 0.5, 0.3);
@@ -446,60 +315,7 @@ void drawScene(void)
             glEnd();
         }
 
-        /*
-        glColor3f(0.22, 0.2, 0.3); // grey
 
-
-
-        // Iarba de jos
-        glBegin(GL_POLYGON);
-        glVertex2i(-100, -140); // Stanga jos
-        glVertex2i(700, -140); // Dreapta jos
-        glVertex2i(700, -80); // Dreapta sus
-        glVertex2i(-100, -80); // Stanga sus
-        glEnd();
-
-        // Iarba de sus
-        glBegin(GL_POLYGON);
-        glVertex2i(-100, 400);// Stanga jos
-        glVertex2i(700, 400); // Dreapta jos
-        glVertex2i(700, 460); // Dreapta sus
-        glVertex2i(-100, 460);// Stanga sus
-        glEnd();
-        //RenderString(200.0f, 425.0f, GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)"Depaseste masinile!");
-
-        // Delimitare sosea
-        glLineWidth(3);
-        glColor3f(1, 1, 1);
-
-        // Delimitam soseaua de iarba partea de jos
-        glBegin(GL_LINES);
-        glVertex2i(-100, -80);
-        glVertex2i(1500, -80);
-        glEnd();
-
-        // Delimitam soseaua de iarba partea de sus
-        glBegin(GL_LINES);
-        glVertex2i(-100, 400);
-        glVertex2i(1500, 400);
-        glEnd();
-
-        // Liniile intrerupte
-        glPushMatrix();
-        glTranslated(i, 0.0, 0.0);
-
-
-        glBegin(GL_LINES);
-        glVertex2i(-100, 80);
-        glVertex2i(1500, 80);
-        glEnd();
-
-        glBegin(GL_LINES);
-        glVertex2i(-100, 240);
-        glVertex2i(1500, 240);
-        glEnd();
-        glPopMatrix();
-        */
 
         {
             //draw rocket
@@ -564,55 +380,48 @@ void drawScene(void)
             glPopMatrix();
         }
 
-        glPopMatrix();
 
         if (GameHelper::GetStartGame() == 2) {
             //game over
             RenderString(365.0f, 395.0f, GLUT_BITMAP_8_BY_13, (const unsigned char*)"GAME OVER");
         }
 
-        if (contor == 1 && (r.GetY() != 230 && r.GetY() != 420 && r.GetY() != 610))
+        if (contor == 1 && (r.GetY() != 275 && r.GetY() != 465 && r.GetY() != 655))
             r.SetY(r.GetY() + 1);
-        else if (contor == -1 && (r.GetY() != 420 && r.GetY() != 230 && r.GetY() != 40))
+        else if (contor == -1 && (r.GetY() != 465 && r.GetY() != 275 && r.GetY() != 85))
             r.SetY(r.GetY() - 1);
         else
             contor = 0;
 
         //desenam a doua masina (adversara)
         glPushMatrix();
-        glTranslated(loc_vert, height, 0.0);
+        glTranslated(m.GetX(), m.GetY(), 0.0);
 
         glColor3f(0.4, 0.4, 0.4);
-        glRecti(45, 15, 75, 45);
+        glBegin(GL_POLYGON);
+        glVertex2i(45, 15);
+        glVertex2i(45, 37);
+        glVertex2i(62, 37);
+        glVertex2i(62, 45);
+        glVertex2i(75, 45);
+        glVertex2i(75, 38);
+        glVertex2i(65, 38);
+        glVertex2i(45, 38);
+        glEnd();
+
+        glColor3f(0.56, 1., 1.);
+        glRecti(50, 20, 58, 28);
 
 
         glPopMatrix();
 
-        startgame();   
+        startgame();
     }
 
-    if (contor == 1 && (r.GetY() != 230 && r.GetY() != 420 && r.GetY() != 610))
-        r.SetY(r.GetY() + 1);
-    else if (contor == -1 && (r.GetY() != 420 && r.GetY() != 230 && r.GetY() != 40))
-        r.SetY(r.GetY() - 1);
-    else
-        contor = 0;
-
-    //desenam a doua masina (adversara)
-    glPushMatrix();
-    glTranslated(m.GetX(), m.GetY(), 0.0);
-
-    glColor3f(0.4, 0.4, 0.4);
-    glRecti(45, 15, 75, 45);
-
-
-    glPopMatrix();
-
-    startgame();
     glutPostRedisplay();
     glutSwapBuffers();
     glFlush();
-    
+
 }
 
 void reshape(int w, int h)
@@ -627,9 +436,9 @@ void reshape(int w, int h)
 
 void miscasus(void)
 {
-    if (ok != 0)
+    if (GameHelper::GetStartGame() != 2)
     {
-        if (r.GetY() < 610)
+        if (r.GetY() < 655)
         {
             contor = 1;
             r.SetY(r.GetY() + 1);
@@ -641,9 +450,9 @@ void miscasus(void)
 
 void miscajos(void)
 {
-    if (ok != 0)
+    if (GameHelper::GetStartGame() != 2)
     {
-        if (r.GetY() > 40)
+        if (r.GetY() > 85)
         {
             contor = -1;
             r.SetY(r.GetY() - 1);
@@ -655,8 +464,8 @@ void miscajos(void)
 
 void keyboardNormal(unsigned char key, int xx, int yy)
 {
-    switch (key){
-        case 's':
+    switch (key) {
+    case 's':
         GameHelper::SetStartGame(1);
         break;
     }
