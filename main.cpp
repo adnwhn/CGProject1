@@ -159,6 +159,8 @@ double starScaleFactor = 1.;
 double step = 0.0001;
 double rotationAngle = 0.;
 double angleStep = 0.01;
+double comet_x = 600;
+double comet_y = vector[rand() % 4];
 
 void init(void)
 {
@@ -169,7 +171,7 @@ void init(void)
 
 void RenderString(float x, float y, void* font, const unsigned char* string)
 {
-    glColor3f(1.0f, 1.0f, 1.0f);
+    glColor3f(0.7f, 0.7f, 0.7f);
     glRasterPos2f(x, y);
     glutBitmapString(font, string);
 }
@@ -190,6 +192,36 @@ void startgame(void)
             height = vector[rand() % 4];
             cout << "Score:  " << score << endl;
             loc_vert = 800;
+        }
+
+        if (score >= pct && pct <= 15000)
+        {
+            timp += 0.1;
+            pct += 1000;
+        }
+
+        glutPostRedisplay();
+    }
+    else
+    {
+        ok = 0;
+        GameHelper::SetStartGame(2);
+    }
+    
+    if (comet_y != r.GetY() || (comet_x > 90 || comet_x < -90))
+    {
+        if (i < -380)
+            i = 0;
+        i = i - 2 * timp;
+
+        comet_x -= timp;
+
+        if (comet_x < -6000)
+        {
+            score += 100;
+            comet_y = vector[rand() % 4];
+            cout << "Score:  " << score << endl;
+            comet_x = 800;
         }
 
         if (score >= pct && pct <= 15000)
@@ -233,8 +265,8 @@ void drawScene(void)
 
     if (GameHelper::GetStartGame() == 0) {
         //start game
-        RenderString(359.0f, 400.0f, GLUT_BITMAP_8_BY_13, (const unsigned char*)"START GAME");
-        RenderString(324.0f, 385.0f, GLUT_BITMAP_8_BY_13, (const unsigned char*)"Press \"s\" to start");
+        RenderString(340.0f, 470.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"START GAME");
+        RenderString(350.0f, 385.0f, GLUT_BITMAP_HELVETICA_12, (const unsigned char*)"Press \"s\" to start");
 
         // big stars 
         {
@@ -244,15 +276,15 @@ void drawScene(void)
             glScalef(starScaleFactor, starScaleFactor, 0.0);
             glTranslatef(0.0, 0.0, 0.0);
             // body
-            glColor3f(0.8, 0.5, 0.3);
-            // rhombus vertical
+            glColor3f(0.82, 0.4, 0.03);
+            // rhombus horizontal
             glBegin(GL_POLYGON);
             glVertex2i(-100, 0);
             glVertex2i(0, -50);
             glVertex2i(100, 0);
             glVertex2i(0, 50);
             glEnd();
-            // rhombus horizontal
+            // rhombus vertical
             glBegin(GL_POLYGON);
             glVertex2i(-50, 0);
             glVertex2i(0, -100);
@@ -275,15 +307,15 @@ void drawScene(void)
             glScalef(starScaleFactor, starScaleFactor, 0.0);
             glTranslatef(0.0, 0.0, 0.0);
             // body
-            glColor3f(0.8, 0.5, 0.3);
-            // rhombus vertical
+            glColor3f(0.82, 0.4, 0.03);
+            // rhombus horizontal
             glBegin(GL_POLYGON);
             glVertex2i(-100, 0);
             glVertex2i(0, -50);
             glVertex2i(100, 0);
             glVertex2i(0, 50);
             glEnd();
-            // rhombus horizontal
+            // rhombus vertical
             glBegin(GL_POLYGON);
             glVertex2i(-50, 0);
             glVertex2i(0, -100);
@@ -305,15 +337,15 @@ void drawScene(void)
             glTranslatef(400.0, 150.0, 0.0);
             glScalef(starScaleFactor, starScaleFactor, 0.0);
             // body
-            glColor3f(0.8, 0.5, 0.3);
-            // rhombus vertical
+            glColor3f(0.82, 0.4, 0.03);
+            // rhombus horizontal
             glBegin(GL_POLYGON);
             glVertex2i(-100, 0);
             glVertex2i(0, -50);
             glVertex2i(100, 0);
             glVertex2i(0, 50);
             glEnd();
-            // rhombus horizontal
+            // rhombus vertical horizontal
             glBegin(GL_POLYGON);
             glVertex2i(-50, 0);
             glVertex2i(0, -100);
@@ -339,14 +371,14 @@ void drawScene(void)
             glScalef(starScaleFactor, starScaleFactor, 0.0);
             // body
             glColor3f(1.0, 0.8, 0.5);
-            // rhombus vertical
+            // rhombus horizontal
             glBegin(GL_POLYGON);
             glVertex2i(-75, 0);
             glVertex2i(0, -25);
             glVertex2i(75, 0);
             glVertex2i(0, 25);
             glEnd();
-            // rhombus horizontal
+            // rhombus vertical
             glBegin(GL_POLYGON);
             glVertex2i(-25, 0);
             glVertex2i(0, -75);
@@ -354,7 +386,7 @@ void drawScene(void)
             glVertex2i(0, 75);
             glEnd();
             // rhombus center
-            glColor3f(0.8, 0.5, 0.3);
+            glColor3f(0.82, 0.4, 0.03);
             glBegin(GL_POLYGON);
             glVertex2i(-20, 0);
             glVertex2i(0, -20);
@@ -369,14 +401,14 @@ void drawScene(void)
             glScalef(starScaleFactor, starScaleFactor, 0.0);
             // body
             glColor3f(1.0, 0.8, 0.5);
-            // rhombus vertical
+            // rhombus horizontal
             glBegin(GL_POLYGON);
             glVertex2i(-75, 0);
             glVertex2i(0, -25);
             glVertex2i(75, 0);
             glVertex2i(0, 25);
             glEnd();
-            // rhombus horizontal
+            // rhombus vertical
             glBegin(GL_POLYGON);
             glVertex2i(-25, 0);
             glVertex2i(0, -75);
@@ -384,7 +416,7 @@ void drawScene(void)
             glVertex2i(0, 75);
             glEnd();
             // rhombus center
-            glColor3f(0.8, 0.5, 0.3);
+            glColor3f(0.82, 0.4, 0.03);
             glBegin(GL_POLYGON);
             glVertex2i(-20, 0);
             glVertex2i(0, -20);
@@ -412,21 +444,21 @@ void drawScene(void)
             glEnd();
 
             // sides
-            glColor3f(0.27, 0.26, 0.25);
+            glColor3f(0.3, 0.26, 0.3);
             glBegin(GL_POLYGON);
-            glVertex2i(65, 20);
-            glVertex2i(65, 15);
             glVertex2i(70, 20);
+            glVertex2i(70, 15);
+            glVertex2i(75, 20);
             glEnd();
 
             glBegin(GL_POLYGON);
-            glVertex2i(65, 40);
-            glVertex2i(65, 45);
             glVertex2i(70, 40);
+            glVertex2i(70, 45);
+            glVertex2i(75, 40);
             glEnd();
 
             // back
-            glColor3f(0.3, 0.3, 0.4);
+            glColor3f(0.3, 0.26, 0.3);
             glRecti(58, 23, 65, 37);
 
             // flames
@@ -449,7 +481,6 @@ void drawScene(void)
             glVertex2i(45, 30);
             glVertex2i(58, 32);
             glEnd();
-
 
             // body
             glColor3f(0.26, 0.3, 0.4);
@@ -591,21 +622,21 @@ void drawScene(void)
             glEnd();
 
             // sides
-            glColor3f(0.27, 0.26, 0.25);
+            glColor3f(0.3, 0.26, 0.3);
             glBegin(GL_POLYGON);
-            glVertex2i(65, 20);
-            glVertex2i(65, 15);
             glVertex2i(70, 20);
+            glVertex2i(70, 15);
+            glVertex2i(75, 20);
             glEnd();
 
             glBegin(GL_POLYGON);
-            glVertex2i(65, 40);
-            glVertex2i(65, 45);
             glVertex2i(70, 40);
+            glVertex2i(70, 45);
+            glVertex2i(75, 40);
             glEnd();
 
             // back
-            glColor3f(0.3, 0.3, 0.4);
+            glColor3f(0.3, 0.26, 0.3);
             glRecti(58, 23, 65, 37);
 
             // flames
@@ -629,7 +660,6 @@ void drawScene(void)
             glVertex2i(58, 32);
             glEnd();
 
-
             // body
             glColor3f(0.26, 0.3, 0.4);
             glRecti(65, 20, 115, 40);
@@ -639,7 +669,7 @@ void drawScene(void)
 
         if (GameHelper::GetStartGame() == 2) {
             //game over
-            RenderString(365.0f, 395.0f, GLUT_BITMAP_8_BY_13, (const unsigned char*)"GAME OVER");
+            RenderString(345.0f, 395.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"GAME OVER");
         }
 
         if (contor == 1 && (r.GetY() != 230 && r.GetY() != 420 && r.GetY() != 610))
@@ -649,14 +679,49 @@ void drawScene(void)
         else
             contor = 0;
 
-        //desenam a doua masina (adversara)
+        // meteorites
         glPushMatrix();
         glTranslated(loc_vert, height, 0.0);
 
         glColor3f(0.4, 0.4, 0.4);
         glRecti(45, 15, 75, 45);
+        glPopMatrix();
 
-
+        // comets
+        glPushMatrix();
+        glTranslatef(comet_x, comet_y, 0.0);
+        // tail
+        glColor3f(0.82, 0.4, 0.03);
+        glBegin(GL_POLYGON);
+        glVertex2i(7.5, 15);
+        glVertex2i(60, 25);
+        glVertex2i(45, 15);
+        glVertex2i(60, 5);
+        glEnd();
+        // body
+        glColor3f(1.0, 0.8, 0.5);
+        // rhombus horizontal
+        glBegin(GL_POLYGON);
+        glVertex2i(0, 15);
+        glVertex2i(15, 7.5);
+        glVertex2i(30, 15);
+        glVertex2i(15, 22.5);
+        glEnd();
+        // rhombus vertical
+        glBegin(GL_POLYGON);
+        glVertex2i(7.5, 15);
+        glVertex2i(15, 0);
+        glVertex2i(22.5, 15);
+        glVertex2i(15, 30);
+        glEnd();
+        // rhombus center
+        glColor3f(0.82, 0.4, 0.03);
+        glBegin(GL_POLYGON);
+        glVertex2i(10.25, 15);
+        glVertex2i(15, 10.25);
+        glVertex2i(18.75, 15);
+        glVertex2i(15, 18.75);
+        glEnd();
         glPopMatrix();
 
         startgame();   
