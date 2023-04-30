@@ -89,13 +89,93 @@ void Object::SetY(GLdouble newY)
 
 
 
+void GameHelper::SetStartGame(int sg) 
+{
+    startGame = sg;
+}
 
-bool Rocket::OnMeteoriteCrash(Meteorite& m)
+int GameHelper::GetStartGame() 
+{
+    return startGame;
+}
+
+bool GameHelper::CheckCollision(Object ob, Object ob2)
+{
+    return false;
+}
+
+struct Color
+{
+    GLfloat r;
+    GLfloat g;
+    GLfloat b;
+};
+
+class DisplayHelper
+{
+public:
+    //static Color GetBackgroundColor();
+
+private:
+    DisplayHelper() = delete;
+    //static Color bkgColor;
+
+};
+
+//Color DisplayHelper::GetBackgroundColor()
+//{
+//    return bkgColor;
+//}
+
+class Asteroid : public Object
+{
+public:
+    Asteroid() : Object(0.0, 0.0)
+    {};
+private:
+
+
+};
+
+class Rocket : public Object
+{
+public:
+    Rocket();
+    Rocket(GLdouble x, GLdouble y)
+    {
+        SetX(x);
+        SetY(y);
+    }
+    bool OnAsteroidCrash(Asteroid& m);
+private:
+};
+
+bool Rocket::OnAsteroidCrash(Asteroid& m)
 {
     return true;
 }
 
 
+int currentTheme;
+double ok = 1;
+double i = 0.0;
+double contor = 0;
+double loc_vert = 800;
+int vector[4] = { 40, 230, 420, 610 };
+//int vector[4] = {0, 160, 320, 480};
+double height = vector[rand() % 4];
+int score = 0;
+double timp = 0.15;
+int pct = 1000;
+Rocket r(0.0, 40.0);
+int GameHelper::startGame = 0;
+//double rsj, rdj, rss, rds = 0;
+double starScaleFactor = 1.;
+double step = 0.0001;
+double rotationAngle = 0.;
+double angleStep = 0.01;
+double comet_x = 600;
+double comet_y = vector[rand() % 4];
 
 void init(void)
 {
@@ -103,6 +183,19 @@ void init(void)
     glMatrixMode(GL_PROJECTION);
     glOrtho(left_m, right_m, bottom_m, top_m, -1.0, 1.0);
 
+}
+
+void callback_main(int key)
+{
+    if (key == 0)
+    {
+        exit(0);
+    }
+}
+
+void callback_theme(int key)
+{
+    currentTheme = key;
 }
 
 void RenderString(float x, float y, void* font, const unsigned char* string)
@@ -192,7 +285,7 @@ void rotateRocket(void)
     rotationAngle += angleStep;
 }
 
-void drawScene(void)
+void drawScene()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -561,7 +654,7 @@ void drawScene(void)
         else
             contor = 0;
 
-        // meteorites
+        // asteroids
         glPushMatrix();
         glTranslated(m.GetX(), m.GetY(), 0.0);
 
@@ -688,6 +781,8 @@ void keyboardSpecial(int key, int x, int y)
 
 int main(int argc, char** argv)
 {
+    int menuTheme, menuMain;
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize(800, 800);
@@ -698,6 +793,15 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboardNormal);
     glutSpecialFunc(keyboardSpecial);
+
+    menuTheme = glutCreateMenu(callback_theme);
+    glutAddMenuEntry("Classic", 1);
+    glutAddMenuEntry("Asteroids belt (hard)", 2);
+
+    menuMain = glutCreateMenu(callback_main);
+    glutAddSubMenu("Mode ", menuTheme);
+    glutAddMenuEntry("Exit", 0);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     glutMainLoop();
 }
