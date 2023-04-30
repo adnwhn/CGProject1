@@ -58,9 +58,6 @@ void Object::SetY(GLdouble newY)
     y = newY;
 }
 
-
-
-
 struct Color
 {
     GLfloat r;
@@ -139,9 +136,20 @@ class GameHelper
 public:
     static bool CheckCollision(Rocket ob1, Meteorite ob2);
     static int score;
+    static int startGame;
+    static void SetStartGame(int sg);
+    static int GetStartGame();
 
 private:
 };
+
+void GameHelper::SetStartGame(int sg) {
+    startGame = sg;
+}
+
+int GameHelper::GetStartGame() {
+    return startGame;
+}
 
 bool GameHelper::CheckCollision(Rocket ob, Meteorite ob2)
 {
@@ -206,6 +214,7 @@ double timp = 0.15;
 int pct = 1000;
 Rocket r(0.0, 40.0, 90.0, 30.0);
 Meteorite m(800., vector[rand() % 4], 30., 30.);
+int GameHelper::startGame = 0;
 char* DisplayHelper::sound_file = const_cast<char*>(".wav");
 //double rsj, rdj, rss, rds = 0;
 
@@ -247,7 +256,7 @@ void init(void)
 void RenderString(float x, float y, void* font, const unsigned char* string)
 {
 
-    glColor3f(0.0f, 0.0f, 0.0f);
+    glColor3f(1.0f, 1.0f, 1.0f);
     glRasterPos2f(x, y);
 
     glutBitmapString(font, string);
@@ -281,234 +290,305 @@ void startgame(void)
         glutPostRedisplay();
     }
     else
+    {
         ok = 0;
-
+        GameHelper::SetStartGame(2);
+    }
 }
 
 void drawScene(void)
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Lane delimitation
-    // * 4 lanes
-    // * 5 delimiters
+    if (GameHelper::GetStartGame() == 0) {
+        //start game
+        RenderString(350.0f, 400.0f, GLUT_BITMAP_8_BY_13, (const unsigned char*)"START GAME");
+        RenderString(315.0f, 385.0f, GLUT_BITMAP_8_BY_13, (const unsigned char*)"Press \"s\" to start");
 
-    // 1st delimiter
-    glColor3f(0.3, 0.28, 0.4);
+        // stars 
+        glPushMatrix();
+        //glScalef(1.25, 1.25, 0.0);
+        // 1st up left
+        // body
+        glColor3f(0.8, 0.5, 0.3);
+        // rhombus vertical
+        glBegin(GL_POLYGON);
+        glVertex2i(100, 600);
+        glVertex2i(200, 550);
+        glVertex2i(300, 600);
+        glVertex2i(200, 650);
+        glEnd();
+        // rhombus horizontal
+        glBegin(GL_POLYGON);
+        glVertex2i(150, 600);
+        glVertex2i(200, 500);
+        glVertex2i(250, 600);
+        glVertex2i(200, 700);
+        glEnd();
+        // rhombus center
+        glColor3f(1.0, 1.0, 1.0);
+        glBegin(GL_POLYGON);
+        glVertex2i(175, 600);
+        glVertex2i(200, 575);
+        glVertex2i(225, 600);
+        glVertex2i(200, 625);
+        glEnd();
 
-    glBegin(GL_POLYGON);
-    glVertex2i(0, 0); // down left
-    glVertex2i(800, 0); // down right
-    glVertex2i(800, 40); // up right
-    glVertex2i(0, 40); // up left
-    glEnd();
+        //2nd up right
+        // body
+        glColor3f(0.8, 0.5, 0.3);
+        // rhombus vertical
+        glBegin(GL_POLYGON);
+        glVertex2i(500, 600);
+        glVertex2i(600, 550);
+        glVertex2i(700, 600);
+        glVertex2i(600, 650);
+        glEnd();
+        // rhombus horizontal
+        glBegin(GL_POLYGON);
+        glVertex2i(550, 600);
+        glVertex2i(600, 500);
+        glVertex2i(650, 600);
+        glVertex2i(600, 700);
+        glEnd();
+        // rhombus center
+        glColor3f(1.0, 1.0, 1.0);
+        glBegin(GL_POLYGON);
+        glVertex2i(575, 600);
+        glVertex2i(600, 575);
+        glVertex2i(625, 600);
+        glVertex2i(600, 625);
+        glEnd(); 
+        
+        //3rd down center
+        // body
+        glColor3f(0.8, 0.5, 0.3);
+        // rhombus vertical
+        glBegin(GL_POLYGON);
+        glVertex2i(300, 150);
+        glVertex2i(400, 100);
+        glVertex2i(500, 150);
+        glVertex2i(400, 200);
+        glEnd();
+        // rhombus horizontal
+        glBegin(GL_POLYGON);
+        glVertex2i(350, 150);
+        glVertex2i(400, 50);
+        glVertex2i(450, 150);
+        glVertex2i(400, 250);
+        glEnd();
+        // rhombus center
+        glColor3f(1.0, 1.0, 1.0);
+        glBegin(GL_POLYGON);
+        glVertex2i(375, 150);
+        glVertex2i(400, 125);
+        glVertex2i(425, 150);
+        glVertex2i(400, 175);
+        glEnd();
 
-    // stars on 1st
+        glPopMatrix();
+    }
+    else {
 
-    //drawStar(20, 15);
+        {
+            // Lane delimitation
+            // * 4 lanes
+            // * 5 delimiters
 
-    // rhombus body
-    glColor3f(1.0, 1.0, 1.0);
-    glBegin(GL_POLYGON);
-    glVertex2i(15, 20);
-    glVertex2i(20, 15);
-    glVertex2i(25, 20);
-    glVertex2i(20, 25);
-    glEnd();
+            // 1st delimiter
+            glColor3f(0.3, 0.28, 0.4);
 
-    // rhombus center
-    glColor3f(1.0, 1.0, 0.0);
-    glBegin(GL_POLYGON);
-    glVertex2i(17.5, 20);
-    glVertex2i(20, 17.5);
-    glVertex2i(22.5, 20);
-    glVertex2i(22.5, 22.5);
-    glEnd();
+            glBegin(GL_POLYGON);
+            glVertex2i(0, 0); // down left
+            glVertex2i(800, 0); // down right
+            glVertex2i(800, 40); // up right
+            glVertex2i(0, 40); // up left
+            glEnd();
 
-    // triangles
-    glColor3f(1.0, 1.0, 0.0);
-    glBegin(GL_POLYGON);
-    glVertex2i(15, 20);
-    glVertex2i(16, 19);
-    glVertex2i(16, 21);
-    glEnd();
-    glBegin(GL_POLYGON);
-    glVertex2i(25, 20);
-    glVertex2i(24, 19);
-    glVertex2i(24, 21);
-    glEnd();
-    glBegin(GL_POLYGON);
-    glVertex2i(20, 25);
-    glVertex2i(19, 24);
-    glVertex2i(21, 24);
-    glEnd();
-    glBegin(GL_POLYGON);
-    glVertex2i(20, 15);
-    glVertex2i(19, 16);
-    glVertex2i(21, 16);
-    glEnd();
+            // 2nd delimiter
+            glColor3f(0.3, 0.28, 0.4);
 
-    // 2nd delimiter
-    glColor3f(0.3, 0.28, 0.4);
+            glBegin(GL_POLYGON);
+            glVertex2i(0, 190); // down left
+            glVertex2i(800, 190); // down right
+            glVertex2i(800, 230); // up right
+            glVertex2i(0, 230); // up left
+            glEnd();
 
-    glBegin(GL_POLYGON);
-    glVertex2i(0, 190); // down left
-    glVertex2i(800, 190); // down right
-    glVertex2i(800, 230); // up right
-    glVertex2i(0, 230); // up left
-    glEnd();
+            // 3rd delimiter
+            glColor3f(0.3, 0.28, 0.4);
 
-    // 3rd delimiter
-    glColor3f(0.3, 0.28, 0.4);
+            glBegin(GL_POLYGON);
+            glVertex2i(0, 380); // down left
+            glVertex2i(800, 380); // down right
+            glVertex2i(800, 420); // up right
+            glVertex2i(0, 420); // up left
+            glEnd();
 
-    glBegin(GL_POLYGON);
-    glVertex2i(0, 380); // down left
-    glVertex2i(800, 380); // down right
-    glVertex2i(800, 420); // up right
-    glVertex2i(0, 420); // up left
-    glEnd();
+            // 4th delimiter
+            glColor3f(0.3, 0.28, 0.4);
 
-    // 4th delimiter
-    glColor3f(0.3, 0.28, 0.4);
+            glBegin(GL_POLYGON);
+            glVertex2i(0, 570); // down left
+            glVertex2i(800, 570); // down right
+            glVertex2i(800, 610); // up right
+            glVertex2i(0, 610); // up left
+            glEnd();
 
-    glBegin(GL_POLYGON);
-    glVertex2i(0, 570); // down left
-    glVertex2i(800, 570); // down right
-    glVertex2i(800, 610); // up right
-    glVertex2i(0, 610); // up left
-    glEnd();
+            // 5th delimiter
+            glColor3f(0.3, 0.28, 0.4);
 
-    // 5th delimiter
-    glColor3f(0.3, 0.28, 0.4);
+            glBegin(GL_POLYGON);
+            glVertex2i(0, 760); // down left
+            glVertex2i(800, 760); // down right
+            glVertex2i(800, 800); // up right
+            glVertex2i(0, 800); // up left
+            glEnd();
+        }
 
-    glBegin(GL_POLYGON);
-    glVertex2i(0, 760); // down left
-    glVertex2i(800, 760); // down right
-    glVertex2i(800, 800); // up right
-    glVertex2i(0, 800); // up left
-    glEnd();
-
-    /*
-    glColor3f(0.22, 0.2, 0.3); // grey
-
-
-
-    // Iarba de jos
-    glBegin(GL_POLYGON);
-    glVertex2i(-100, -140); // Stanga jos
-    glVertex2i(700, -140); // Dreapta jos
-    glVertex2i(700, -80); // Dreapta sus
-    glVertex2i(-100, -80); // Stanga sus
-    glEnd();
-
-    // Iarba de sus
-    glBegin(GL_POLYGON);
-    glVertex2i(-100, 400);// Stanga jos
-    glVertex2i(700, 400); // Dreapta jos
-    glVertex2i(700, 460); // Dreapta sus
-    glVertex2i(-100, 460);// Stanga sus
-    glEnd();
-    //RenderString(200.0f, 425.0f, GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)"Depaseste masinile!");
-
-    // Delimitare sosea
-    glLineWidth(3);
-    glColor3f(1, 1, 1);
-
-    // Delimitam soseaua de iarba partea de jos
-    glBegin(GL_LINES);
-    glVertex2i(-100, -80);
-    glVertex2i(1500, -80);
-    glEnd();
-
-    // Delimitam soseaua de iarba partea de sus
-    glBegin(GL_LINES);
-    glVertex2i(-100, 400);
-    glVertex2i(1500, 400);
-    glEnd();
-
-    // Liniile intrerupte
-    glPushMatrix();
-    glTranslated(i, 0.0, 0.0);
-
-
-    glBegin(GL_LINES);
-    glVertex2i(-100, 80);
-    glVertex2i(1500, 80);
-    glEnd();
-
-    glBegin(GL_LINES);
-    glVertex2i(-100, 240);
-    glVertex2i(1500, 240);
-    glEnd();
-    glPopMatrix();
-    */
-
-    //draw rocket
-    glPushMatrix();
-    glTranslated(r.GetX(), r.GetY(), 0.0);
+        /*
+        glColor3f(0.22, 0.2, 0.3); // grey
 
 
-    //start point 45, 15, 135, 45
 
-    // tip
-    glColor3f(0.996, 0.0, 0.0);
-    glBegin(GL_POLYGON);
-    glVertex2i(115, 20);
-    glVertex2i(115, 40);
-    glVertex2i(135, 30);
-    glEnd();
+        // Iarba de jos
+        glBegin(GL_POLYGON);
+        glVertex2i(-100, -140); // Stanga jos
+        glVertex2i(700, -140); // Dreapta jos
+        glVertex2i(700, -80); // Dreapta sus
+        glVertex2i(-100, -80); // Stanga sus
+        glEnd();
 
-    // sides
-    glColor3f(0.27, 0.26, 0.25);
-    glBegin(GL_POLYGON);
-    glVertex2i(65, 20);
-    glVertex2i(65, 15);
-    glVertex2i(70, 20);
-    glEnd();
+        // Iarba de sus
+        glBegin(GL_POLYGON);
+        glVertex2i(-100, 400);// Stanga jos
+        glVertex2i(700, 400); // Dreapta jos
+        glVertex2i(700, 460); // Dreapta sus
+        glVertex2i(-100, 460);// Stanga sus
+        glEnd();
+        //RenderString(200.0f, 425.0f, GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)"Depaseste masinile!");
 
-    glBegin(GL_POLYGON);
-    glVertex2i(65, 40);
-    glVertex2i(65, 45);
-    glVertex2i(70, 40);
-    glEnd();
+        // Delimitare sosea
+        glLineWidth(3);
+        glColor3f(1, 1, 1);
 
-    // back
-    glColor3f(0.3, 0.3, 0.4);
-    glRecti(58, 23, 65, 37);
+        // Delimitam soseaua de iarba partea de jos
+        glBegin(GL_LINES);
+        glVertex2i(-100, -80);
+        glVertex2i(1500, -80);
+        glEnd();
 
-    // flames
-    glColor3f(0.82, 0.4, 0.03);
-    glBegin(GL_POLYGON);
-    glVertex2i(58, 23);
-    glVertex2f(53., 25.5);
-    glVertex2i(58, 28);
-    glEnd();
+        // Delimitam soseaua de iarba partea de sus
+        glBegin(GL_LINES);
+        glVertex2i(-100, 400);
+        glVertex2i(1500, 400);
+        glEnd();
 
-    glBegin(GL_POLYGON);
-    glVertex2i(58, 32);
-    glVertex2f(53., 34.5);
-    glVertex2i(58, 37);
-    glEnd();
-
-    glColor3f(0.82, 0.10, 0.03);
-    glBegin(GL_POLYGON);
-    glVertex2i(58, 28);
-    glVertex2i(45, 30);
-    glVertex2i(58, 32);
-    glEnd();
+        // Liniile intrerupte
+        glPushMatrix();
+        glTranslated(i, 0.0, 0.0);
 
 
-    // body
-    glColor3f(0.26, 0.3, 0.4);
-    glRecti(65, 20, 115, 40);
+        glBegin(GL_LINES);
+        glVertex2i(-100, 80);
+        glVertex2i(1500, 80);
+        glEnd();
 
-    glPopMatrix();
+        glBegin(GL_LINES);
+        glVertex2i(-100, 240);
+        glVertex2i(1500, 240);
+        glEnd();
+        glPopMatrix();
+        */
+
+        {
+            //draw rocket
+            glPushMatrix();
+            glTranslated(r.GetX(), r.GetY(), 0.0);
 
 
-    glPopMatrix();
+            //start point 45, 15, 135, 45
 
-    if (ok == 0) {
-        RenderString(365.0f, 395.0f, GLUT_BITMAP_8_BY_13, (const unsigned char*)"GAME OVER");
+            // tip
+            glColor3f(0.996, 0.0, 0.0);
+            glBegin(GL_POLYGON);
+            glVertex2i(115, 20);
+            glVertex2i(115, 40);
+            glVertex2i(135, 30);
+            glEnd();
+
+            // sides
+            glColor3f(0.27, 0.26, 0.25);
+            glBegin(GL_POLYGON);
+            glVertex2i(65, 20);
+            glVertex2i(65, 15);
+            glVertex2i(70, 20);
+            glEnd();
+
+            glBegin(GL_POLYGON);
+            glVertex2i(65, 40);
+            glVertex2i(65, 45);
+            glVertex2i(70, 40);
+            glEnd();
+
+            // back
+            glColor3f(0.3, 0.3, 0.4);
+            glRecti(58, 23, 65, 37);
+
+            // flames
+            glColor3f(0.82, 0.4, 0.03);
+            glBegin(GL_POLYGON);
+            glVertex2i(58, 23);
+            glVertex2f(53., 25.5);
+            glVertex2i(58, 28);
+            glEnd();
+
+            glBegin(GL_POLYGON);
+            glVertex2i(58, 32);
+            glVertex2f(53., 34.5);
+            glVertex2i(58, 37);
+            glEnd();
+
+            glColor3f(0.82, 0.10, 0.03);
+            glBegin(GL_POLYGON);
+            glVertex2i(58, 28);
+            glVertex2i(45, 30);
+            glVertex2i(58, 32);
+            glEnd();
+
+
+            // body
+            glColor3f(0.26, 0.3, 0.4);
+            glRecti(65, 20, 115, 40);
+
+            glPopMatrix();
+        }
+
+        glPopMatrix();
+
+        if (GameHelper::GetStartGame() == 2) {
+            //game over
+            RenderString(365.0f, 395.0f, GLUT_BITMAP_8_BY_13, (const unsigned char*)"GAME OVER");
+        }
+
+        if (contor == 1 && (r.GetY() != 230 && r.GetY() != 420 && r.GetY() != 610))
+            r.SetY(r.GetY() + 1);
+        else if (contor == -1 && (r.GetY() != 420 && r.GetY() != 230 && r.GetY() != 40))
+            r.SetY(r.GetY() - 1);
+        else
+            contor = 0;
+
+        //desenam a doua masina (adversara)
+        glPushMatrix();
+        glTranslated(loc_vert, height, 0.0);
+
+        glColor3f(0.4, 0.4, 0.4);
+        glRecti(45, 15, 75, 45);
+
+
+        glPopMatrix();
+
+        startgame();   
     }
 
     if (contor == 1 && (r.GetY() != 230 && r.GetY() != 420 && r.GetY() != 610))
@@ -532,6 +612,7 @@ void drawScene(void)
     glutPostRedisplay();
     glutSwapBuffers();
     glFlush();
+    
 }
 
 void reshape(int w, int h)
@@ -572,10 +653,17 @@ void miscajos(void)
     }
 }
 
-void keyboard(int key, int x, int y)
+void keyboardNormal(unsigned char key, int xx, int yy)
 {
+    switch (key){
+        case 's':
+        GameHelper::SetStartGame(1);
+        break;
+    }
+}
 
-
+void keyboardSpecial(int key, int x, int y)
+{
     switch (key) {
     case GLUT_KEY_UP:
         miscasus();
@@ -597,7 +685,8 @@ int main(int argc, char** argv)
     init();
     glutDisplayFunc(drawScene);
     glutReshapeFunc(reshape);
-    glutSpecialFunc(keyboard);
+    glutKeyboardFunc(keyboardNormal);
+    glutSpecialFunc(keyboardSpecial);
 
     glutMainLoop();
 }
