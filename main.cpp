@@ -4,7 +4,7 @@
 
 using namespace std;
 
-
+#pragma comment(lib, "Winmm.lib")
 
 //class Planet
 //{
@@ -63,6 +63,9 @@ class GameHelper
 {
 public:
     static bool CheckCollision(Object ob1, Object ob2);
+
+private:
+    
 };
 
 bool GameHelper::CheckCollision(Object ob, Object ob2)
@@ -174,6 +177,9 @@ void init(void)
     glClearColor(0.22, 0.2, 0.3, 0.0);
     glMatrixMode(GL_PROJECTION);
     glOrtho(left_m, right_m, bottom_m, top_m, -1.0, 1.0);
+    PlaySound((LPCTSTR)SND_ALIAS_SYSTEMSTART, NULL, SND_ALIAS_ID);
+    cout << "Played sound\n";
+
 }
 
 void RenderString(float x, float y, void* font, const unsigned char* string)
