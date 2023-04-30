@@ -59,19 +59,7 @@ void Object::SetY(GLdouble newY)
 }
 
 
-class GameHelper
-{
-public:
-    static bool CheckCollision(Object ob1, Object ob2);
 
-private:
-    
-};
-
-bool GameHelper::CheckCollision(Object ob, Object ob2)
-{
-    return false;
-}
 
 struct Color
 {
@@ -85,6 +73,8 @@ class DisplayHelper
 {
 public:
     //static Color GetBackgroundColor();
+    static char* sound_file;
+    static void StartMusic();
 
 private:
     DisplayHelper() = delete;
@@ -92,6 +82,10 @@ private:
 
 };
 
+void DisplayHelper::StartMusic()
+{
+    PlaySound((LPCTSTR)sound_file, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+}
 
 //Color DisplayHelper::GetBackgroundColor()
 //{
@@ -101,29 +95,97 @@ private:
 class Meteorite : public Object
 {
 public:
-    Meteorite() : Object(0.0, 0.0)
-    {};
+    Meteorite(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim);
 private:
-
+    GLdouble xDim;
+    GLdouble yDim;
 
 };
+
+Meteorite::Meteorite(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
+{
+    SetX(x);
+    SetY(y);
+    xDim = xdim;
+    yDim = ydim;
+}
+
 
 class Rocket : public Object
 {
 public:
-    Rocket();
-    Rocket(GLdouble x, GLdouble y)
-    {
-        SetX(x);
-        SetY(y);
-    }
+    Rocket(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim);
     bool OnMeteoriteCrash(Meteorite& m);
 private:
+    GLdouble xDim;
+    GLdouble yDim;
 };
+
+Rocket::Rocket(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
+{
+    SetX(x);
+    SetY(y);
+    xDim = xdim;
+    yDim = ydim;
+}
 
 bool Rocket::OnMeteoriteCrash(Meteorite& m)
 {
     return true;
+}
+
+class GameHelper
+{
+public:
+    static bool CheckCollision(Rocket ob1, Meteorite ob2);
+    static int score;
+
+private:
+};
+
+bool GameHelper::CheckCollision(Rocket ob, Meteorite ob2)
+{
+    if (height != r.GetY() || (loc_vert > 90 || loc_vert < -90))
+    {
+
+        if (i < -380)
+            i = 0;
+        i = i - 2 * timp;
+
+        loc_vert -= timp;
+
+        if (loc_vert < -150)
+        {
+            GameHelper::score += 100;
+            height = vector[rand() % 4];
+            cout << "Score:  " << GameHelper::score << endl;
+            loc_vert = 800;
+        }
+
+        if (GameHelper::score >= pct && pct <= 15000)
+        {
+            timp += 0.1;
+            pct += 1000;
+        }
+
+        glutPostRedisplay();
+    }
+    else
+        ok = 0;
+
+
+
+    if (ob2.GetY() != ob.GetY() || (m.GetX() > 0 || m.GetX() < 0))
+    {
+        if (ob2.GetX() < -150)
+        {
+            score += 100;
+            ob2.SetY(vector[rand() % 4]);
+            // score
+
+            ob2.SetX(800.);
+        }
+    }
 }
 
 
@@ -139,10 +201,12 @@ double loc_vert = 800;
 int vector[4] = { 40, 230, 420, 610 };
 //int vector[4] = {0, 160, 320, 480};
 double height = vector[rand() % 4];
-int score = 0;
+int GameHelper::score = 0;
 double timp = 0.15;
 int pct = 1000;
-Rocket r(0.0, 40.0);
+Rocket r(0.0, 40.0, 90.0, 30.0);
+Meteorite m(800., vector[rand() % 4], 30., 30.);
+char* DisplayHelper::sound_file = const_cast<char*>(".wav");
 //double rsj, rdj, rss, rds = 0;
 
 /*
@@ -177,8 +241,6 @@ void init(void)
     glClearColor(0.22, 0.2, 0.3, 0.0);
     glMatrixMode(GL_PROJECTION);
     glOrtho(left_m, right_m, bottom_m, top_m, -1.0, 1.0);
-    PlaySound((LPCTSTR)SND_ALIAS_SYSTEMSTART, NULL, SND_ALIAS_ID);
-    cout << "Played sound\n";
 
 }
 
@@ -204,13 +266,13 @@ void startgame(void)
 
         if (loc_vert < -150)
         {
-            score += 100;
+            GameHelper::score += 100;
             height = vector[rand() % 4];
-            cout << "Score:  " << score << endl;
+            cout << "Score:  " << GameHelper::score << endl;
             loc_vert = 800;
         }
 
-        if (score >= pct && pct <= 15000)
+        if (GameHelper::score >= pct && pct <= 15000)
         {
             timp += 0.1;
             pct += 1000;
@@ -458,7 +520,7 @@ void drawScene(void)
 
     //desenam a doua masina (adversara)
     glPushMatrix();
-    glTranslated(loc_vert, height, 0.0);
+    glTranslated(m.GetX(), m.GetY(), 0.0);
 
     glColor3f(0.4, 0.4, 0.4);
     glRecti(45, 15, 75, 45);
