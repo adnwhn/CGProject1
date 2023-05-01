@@ -23,7 +23,11 @@ int pct = 1000;
 Rocket r(0.0, 85.0, 90.0, 30.0);
 Asteroid m(800., vector[rand() % 4], 30., 30.);
 int GameHelper::startGame = 0;
-char* DisplayHelper::sound_file = const_cast<char*>(".wav");
+char* DisplayHelper::sound_fileCOMET = const_cast<char*>("soundtrackCOMET-wav.wav");
+char* DisplayHelper::sound_fileINTRO = const_cast<char*>("sountrackINTRO-wav.wav");
+char* DisplayHelper::sound_filePLAY = const_cast<char*>("soundtrackPLAY-wav.wav");
+char* DisplayHelper::sound_fileLOSE = const_cast<char*>("soundtrackLOSE-wav.wav");
+
 double starScaleFactor = 1.;
 double step = 0.0001;
 double rotationAngle = 0.;
@@ -31,12 +35,7 @@ double angleStep = 0.01;
 Comet c(600., vector[rand() % 4]);
 bool GameHelper::immunity = false;
 int GameHelper::immunityc = 0;
-Color GameHelper::bkg;
 GameHelper::Mode GameHelper::mode = GameHelper::Mode::normal;
-Color GameHelper::bkgCometMode;
-
-double comet_x = 600;
-double comet_y = vector[rand() % 4];
 
 void GameHelper::SetStartGame(int sg) {
     startGame = sg;
@@ -87,9 +86,24 @@ Asteroid::Asteroid(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
     yDim = ydim;
 }
 
-void DisplayHelper::StartMusic()
+void DisplayHelper::IntroMusic()
 {
-    PlaySound((LPCTSTR)sound_file, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+    PlaySound((LPCTSTR)sound_fileINTRO, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+}
+
+void DisplayHelper::PlayMusic()
+{
+    PlaySound((LPCTSTR)sound_filePLAY, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+}
+
+void DisplayHelper::CometMusic()
+{
+    PlaySound((LPCTSTR)sound_fileCOMET, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+}
+
+void DisplayHelper::LoseMusic()
+{
+    PlaySound((LPCTSTR)sound_fileLOSE, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
 }
 
 void DisplayHelper::StopMusic()
@@ -131,19 +145,9 @@ Comet::Comet(GLdouble x, GLdouble y)
 
 void init(void)
 {
-    GameHelper::bkg.r = 0.22;
-    GameHelper::bkg.g = 0.2;
-    GameHelper::bkg.b = 0.3;
-    GameHelper::bkgCometMode.r = 0.45;
-    GameHelper::bkgCometMode.g = 0.45;
-    GameHelper::bkgCometMode.b = 0.62;
-
-
-    DisplayHelper::ChangeBackground(GameHelper::bkg);
+    glClearColor(0.22, 0.2, 0.3, 0.0);
     glMatrixMode(GL_PROJECTION);
     glOrtho(left_m, right_m, bottom_m, top_m, -1.0, 1.0);
-
-
 }
 
 void callback_main(int key)
@@ -256,6 +260,8 @@ void drawScene()
             glClearColor(0.22, 0.2, 0.3, 0.0);
         else if (currentTheme == 2)
             glClearColor(0.24, 0.22, 0.19, 0.0);
+        
+        
         RenderString(340.0f, 470.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"START GAME");
         RenderString(350.0f, 385.0f, GLUT_BITMAP_HELVETICA_12, (const unsigned char*)"Press \"s\" to start");
 
@@ -514,26 +520,30 @@ void drawScene()
 
     }
     else {
-
         {
-            switch (GameHelper::mode)
+            if (GameHelper::mode == GameHelper::Mode::immunity)
+                glClearColor(0.83, 0.83, 0.83, 0.0);
+            else
             {
-            case GameHelper::Mode::normal:
-                DisplayHelper::ChangeBackground(GameHelper::bkg);
-                break;
-            case GameHelper::Mode::immunity:
-                DisplayHelper::ChangeBackground(GameHelper::bkgCometMode);
+                if (currentTheme == 1)
+                    glClearColor(0.22, 0.2, 0.3, 0.0);
+                else if (currentTheme == 2)
+                    glClearColor(0.24, 0.22, 0.19, 0.0);
             }
-
 
             // Lane delimitation
             // * 4 lanes
             // * 5 delimiters
-            if (currentTheme == 1)
-                glColor3f(0.3, 0.28, 0.4);
-            else if (currentTheme == 2)
-                glColor3f(0.43, 0.41, 0.39);
-
+            if (GameHelper::mode == GameHelper::Mode::immunity)
+                glColor3f(0.11, 0.10, 0.10);
+            else
+            {
+                if (currentTheme == 1)
+                    glColor3f(0.3, 0.28, 0.4);
+                else if (currentTheme == 2)
+                    glColor3f(0.43, 0.41, 0.39);
+            }
+            
             // 1st delimiter
 
             glBegin(GL_POLYGON);
@@ -580,19 +590,18 @@ void drawScene()
             glEnd();
         }
 
-        string scoreText = "Score: " + to_string(GameHelper::score);
-        RenderString(20.0f, 770.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)scoreText.c_str());
-
         {
             //draw rocket
             glPushMatrix();
             glTranslated(r.GetX(), r.GetY(), 0.0);
 
-
             //start point 45, 15, 135, 45
 
             // tip
-            glColor3f(0.996, 0.0, 0.0);
+            if (GameHelper::mode == GameHelper::Mode::immunity)
+                glColor3f(0.19, 0.19, 0.19);
+            else
+                glColor3f(0.996, 0.0, 0.0);
             glBegin(GL_POLYGON);
             glVertex2i(115, 20);
             glVertex2i(115, 40);
@@ -600,7 +609,10 @@ void drawScene()
             glEnd();
 
             // sides
-            glColor3f(0.3, 0.26, 0.3);
+            if (GameHelper::mode == GameHelper::Mode::immunity)
+                glColor3f(0.33, 0.33, 0.32);
+            else
+                glColor3f(0.3, 0.26, 0.3);
             glBegin(GL_POLYGON);
             glVertex2i(70, 20);
             glVertex2i(70, 15);
@@ -614,7 +626,10 @@ void drawScene()
             glEnd();
 
             // back
-            glColor3f(0.3, 0.26, 0.3);
+            if (GameHelper::mode == GameHelper::Mode::immunity)
+                glColor3f(0.33, 0.33, 0.32);
+            else
+                glColor3f(0.3, 0.26, 0.3);
             glRecti(58, 23, 65, 37);
 
             // flames
@@ -639,20 +654,25 @@ void drawScene()
             glEnd();
 
             // body
-            glColor3f(0.26, 0.3, 0.4);
+            if (GameHelper::mode == GameHelper::Mode::immunity)
+                glColor3f(0.41, 0.41, 0.40);
+            else
+                glColor3f(0.26, 0.3, 0.4);
             glRecti(65, 20, 115, 40);
 
             glPopMatrix();
         }
 
-
+        string scoreText = "Score: " + to_string(GameHelper::score);
 
         if (GameHelper::GetStartGame() == 2) {
             //game over
-            string scoremsg = "Score: " + to_string(GameHelper::score);
-            RenderString(345.0f, 400.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"GAME OVER");
-            RenderString(355.0f, 380.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)(scoremsg.c_str()));
+            RenderString(345.0f, 395.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"GAME OVER");
+            RenderString(355.0f, 205.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)(scoreText.c_str()));
+            RenderString(350.0f, 585.0f, GLUT_BITMAP_HELVETICA_12, (const unsigned char*)"Press \"r\" to restart");
         }
+        else
+            RenderString(20.0f, 770.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)scoreText.c_str());
 
         if (contor == 1 && (r.GetY() != 275 && r.GetY() != 465 && r.GetY() != 655))
             r.SetY(r.GetY() + 1);
@@ -665,12 +685,18 @@ void drawScene()
         glPushMatrix();
         glTranslated(m.GetX(), m.GetY(), 0.0);
 
-        glColor3f(0.4, 0.4, 0.4);
+        if (GameHelper::mode == GameHelper::Mode::immunity)
+            glColor3f(0.27, 0.26, 0.26);
+        else
+            glColor3f(0.4, 0.4, 0.4);
 
         glRecti(45, 15, 65, 38);
         glRecti(62, 38, 75, 45);
 
-        glColor3f(0.56, 1., 1.);
+        if (GameHelper::mode == GameHelper::Mode::immunity)
+            glColor3f(0.59, 0.58, 0.58);
+        else
+            glColor3f(0.56, 1., 1.);
         glRecti(50, 20, 58, 28);
         glPopMatrix();
 
@@ -680,10 +706,16 @@ void drawScene()
         glPushMatrix();
         glTranslatef(c.GetX(), c.GetY(), 0.0);
         // tail
-        if (currentTheme == 1)
-            glColor3f(0.82, 0.4, 0.03);
-        else if (currentTheme == 2)
-            glColor3f(0.68, 0.99, 0.98);
+        if (GameHelper::mode == GameHelper::Mode::immunity)
+            glColor3f(0.41, 0.41, 0.40);
+        else
+        {
+            if (currentTheme == 1)
+                glColor3f(0.82, 0.4, 0.03);
+            else if (currentTheme == 2)
+                glColor3f(0.68, 0.99, 0.98);
+        }
+        
         glBegin(GL_POLYGON);
         glVertex2i(7.5, 15);
         glVertex2i(60, 25);
@@ -691,10 +723,15 @@ void drawScene()
         glVertex2i(60, 5);
         glEnd();
         // body
-        if (currentTheme == 1)
-            glColor3f(1.0, 0.8, 0.5);
-        else if (currentTheme == 2)
-            glColor3f(0.16, 0.51, 0.48);
+        if (GameHelper::mode == GameHelper::Mode::immunity)
+            glColor3f(0.59, 0.58, 0.58);
+        else
+        {
+            if (currentTheme == 1)
+                glColor3f(1.0, 0.8, 0.5);
+            else if (currentTheme == 2)
+                glColor3f(0.16, 0.51, 0.48);
+        }
         // rhombus horizontal
         glBegin(GL_POLYGON);
         glVertex2i(0, 15);
@@ -710,10 +747,15 @@ void drawScene()
         glVertex2i(15, 30);
         glEnd();
         // rhombus center
-        if (currentTheme == 1)
-            glColor3f(0.82, 0.4, 0.03);
-        else if (currentTheme == 2)
-            glColor3f(0.68, 0.99, 0.98);
+        if (GameHelper::mode == GameHelper::Mode::immunity)
+            glColor3f(0.41, 0.41, 0.40);
+        else
+        {
+            if (currentTheme == 1)
+                glColor3f(0.82, 0.4, 0.03);
+            else if (currentTheme == 2)
+                glColor3f(0.68, 0.99, 0.98);
+        }
         glBegin(GL_POLYGON);
         glVertex2i(10.25, 15);
         glVertex2i(15, 10.25);
@@ -776,6 +818,22 @@ void keyboardNormal(unsigned char key, int xx, int yy)
     {
     case 's':
         GameHelper::SetStartGame(1);
+        break;
+    case 'r':
+        GameHelper::SetStartGame(0);
+        ok = 1;
+        i = 0.0;
+        contor = 0;
+        height = vector[rand() % 4];
+        GameHelper::score = 0;
+        timp = 0.15;
+        pct = 1000;
+        r.SetY(85.0);
+        GameHelper::immunity = false;
+        GameHelper::immunityc = 0;
+        GameHelper::mode = GameHelper::Mode::normal;
+        m.SetX(800.);
+        m.SetY(vector[rand() % 4]);
         break;
     }
 }
