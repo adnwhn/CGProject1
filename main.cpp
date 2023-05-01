@@ -6,13 +6,12 @@ using namespace std;
 #pragma once
 #pragma comment(lib, "Winmm.lib")
 
-
-
 GLdouble left_m = 0.0;
 GLdouble right_m = 800.0;
 GLdouble bottom_m = 0.0;
 GLdouble top_m = 800.0;
 
+int currentTheme = 1;
 double ok = 1;
 double i = 0.0;
 double contor = 0;
@@ -22,7 +21,7 @@ int GameHelper::score = 0;
 double timp = 0.15;
 int pct = 1000;
 Rocket r(0.0, 85.0, 90.0, 30.0);
-Meteorite m(800., vector[rand() % 4], 30., 30.);
+Asteroid m(800., vector[rand() % 4], 30., 30.);
 int GameHelper::startGame = 0;
 char* DisplayHelper::sound_file = const_cast<char*>(".wav");
 double starScaleFactor = 1.;
@@ -36,6 +35,8 @@ Color GameHelper::bkg;
 GameHelper::Mode GameHelper::mode = GameHelper::Mode::normal;
 Color GameHelper::bkgCometMode;
 
+double comet_x = 600;
+double comet_y = vector[rand() % 4];
 
 void GameHelper::SetStartGame(int sg) {
     startGame = sg;
@@ -45,7 +46,7 @@ int GameHelper::GetStartGame() {
     return startGame;
 }
 
-bool GameHelper::CheckCollision(Rocket ob, Meteorite ob2)
+bool GameHelper::CheckCollision(Rocket ob, Asteroid ob2)
 {
     return (ob2.GetY() == ob.GetY() && (m.GetX() > 45 && m.GetX() < 90) && !GameHelper::immunity);
 }
@@ -73,12 +74,12 @@ Rocket::Rocket(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
     yDim = ydim;
 }
 
-bool Rocket::OnMeteoriteCrash(Meteorite& m)
+bool Rocket::OnAsteroidCrash(Asteroid& m)
 {
     return true;
 }
 
-Meteorite::Meteorite(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
+Asteroid::Asteroid(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
 {
     SetX(x);
     SetY(y);
@@ -145,8 +146,21 @@ void init(void)
 
 }
 
-void RenderString(float x, float y, void* font, const unsigned char* string)
+void callback_main(int key)
 {
+    if (key == 0)
+    {
+        exit(0);
+    }
+}
+
+void callback_theme(int key)
+{
+    currentTheme = key;
+}
+
+void RenderString(float x, float y, void* font, const unsigned char* string)
+{   
     glColor3f(0.7f, 0.7f, 0.7f);
     glRasterPos2f(x, y);
     glutBitmapString(font, string);
@@ -232,12 +246,16 @@ void rotateRocket(void)
     rotationAngle += angleStep;
 }
 
-void drawScene(void)
+void drawScene()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (GameHelper::GetStartGame() == 0) {
         //start game
+        if (currentTheme == 1)
+            glClearColor(0.22, 0.2, 0.3, 0.0);
+        else if (currentTheme == 2)
+            glClearColor(0.24, 0.22, 0.19, 0.0);
         RenderString(340.0f, 470.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"START GAME");
         RenderString(350.0f, 385.0f, GLUT_BITMAP_HELVETICA_12, (const unsigned char*)"Press \"s\" to start");
 
@@ -249,7 +267,10 @@ void drawScene(void)
             glScalef(starScaleFactor, starScaleFactor, 0.0);
             glTranslatef(0.0, 0.0, 0.0);
             // body
-            glColor3f(0.82, 0.4, 0.03);
+            if (currentTheme == 1)
+                glColor3f(0.82, 0.4, 0.03);
+            else if (currentTheme == 2)
+                glColor3f(0.68, 0.99, 0.98);
             // rhombus horizontal
             glBegin(GL_POLYGON);
             glVertex2i(-100, 0);
@@ -265,7 +286,10 @@ void drawScene(void)
             glVertex2i(0, 100);
             glEnd();
             // rhombus center
-            glColor3f(1.0, 0.8, 0.5);
+            if (currentTheme == 1)
+                glColor3f(1.0, 0.8, 0.5);
+            else if (currentTheme == 2)
+                glColor3f(0.16, 0.51, 0.48);
             glBegin(GL_POLYGON);
             glVertex2i(-25, 0);
             glVertex2i(0, -25);
@@ -280,7 +304,10 @@ void drawScene(void)
             glScalef(starScaleFactor, starScaleFactor, 0.0);
             glTranslatef(0.0, 0.0, 0.0);
             // body
-            glColor3f(0.82, 0.4, 0.03);
+            if (currentTheme == 1)
+                glColor3f(0.82, 0.4, 0.03);
+            else if (currentTheme == 2)
+                glColor3f(0.68, 0.99, 0.98);
             // rhombus horizontal
             glBegin(GL_POLYGON);
             glVertex2i(-100, 0);
@@ -296,7 +323,10 @@ void drawScene(void)
             glVertex2i(0, 100);
             glEnd();
             // rhombus center
-            glColor3f(1.0, 0.8, 0.5);
+            if (currentTheme == 1)
+                glColor3f(1.0, 0.8, 0.5);
+            else if (currentTheme == 2)
+                glColor3f(0.16, 0.51, 0.48);
             glBegin(GL_POLYGON);
             glVertex2i(-25, 0);
             glVertex2i(0, -25);
@@ -310,7 +340,10 @@ void drawScene(void)
             glTranslatef(400.0, 150.0, 0.0);
             glScalef(starScaleFactor, starScaleFactor, 0.0);
             // body
-            glColor3f(0.82, 0.4, 0.03);
+            if (currentTheme == 1)
+                glColor3f(0.82, 0.4, 0.03);
+            else if (currentTheme == 2)
+                glColor3f(0.68, 0.99, 0.98);
             // rhombus horizontal
             glBegin(GL_POLYGON);
             glVertex2i(-100, 0);
@@ -326,7 +359,10 @@ void drawScene(void)
             glVertex2i(0, 100);
             glEnd();
             // rhombus center
-            glColor3f(1.0, 0.8, 0.5);
+            if (currentTheme == 1)
+                glColor3f(1.0, 0.8, 0.5);
+            else if (currentTheme == 2)
+                glColor3f(0.16, 0.51, 0.48);
             glBegin(GL_POLYGON);
             glVertex2i(-25, 0);
             glVertex2i(0, -25);
@@ -343,7 +379,10 @@ void drawScene(void)
             glTranslatef(250.0, 350.0, 0.0);
             glScalef(starScaleFactor, starScaleFactor, 0.0);
             // body
-            glColor3f(1.0, 0.8, 0.5);
+            if (currentTheme == 1)
+                glColor3f(1.0, 0.8, 0.5);
+            else if (currentTheme == 2)
+                glColor3f(0.16, 0.51, 0.48);
             // rhombus horizontal
             glBegin(GL_POLYGON);
             glVertex2i(-75, 0);
@@ -359,7 +398,10 @@ void drawScene(void)
             glVertex2i(0, 75);
             glEnd();
             // rhombus center
-            glColor3f(0.82, 0.4, 0.03);
+            if (currentTheme == 1)
+                glColor3f(0.82, 0.4, 0.03);
+            else if (currentTheme == 2)
+                glColor3f(0.68, 0.99, 0.98);
             glBegin(GL_POLYGON);
             glVertex2i(-20, 0);
             glVertex2i(0, -20);
@@ -373,7 +415,10 @@ void drawScene(void)
             glTranslatef(550.0, 350.0, 0.0);
             glScalef(starScaleFactor, starScaleFactor, 0.0);
             // body
-            glColor3f(1.0, 0.8, 0.5);
+            if (currentTheme == 1)
+                glColor3f(1.0, 0.8, 0.5);
+            else if (currentTheme == 2)
+                glColor3f(0.16, 0.51, 0.48);
             // rhombus horizontal
             glBegin(GL_POLYGON);
             glVertex2i(-75, 0);
@@ -389,7 +434,10 @@ void drawScene(void)
             glVertex2i(0, 75);
             glEnd();
             // rhombus center
-            glColor3f(0.82, 0.4, 0.03);
+            if (currentTheme == 1)
+                glColor3f(0.82, 0.4, 0.03);
+            else if (currentTheme == 2)
+                glColor3f(0.68, 0.99, 0.98);
             glBegin(GL_POLYGON);
             glVertex2i(-20, 0);
             glVertex2i(0, -20);
@@ -468,10 +516,6 @@ void drawScene(void)
     else {
 
         {
-            // Lane delimitation
-            // * 4 lanes
-            // * 5 delimiters
-
             switch (GameHelper::mode)
             {
             case GameHelper::Mode::normal:
@@ -481,8 +525,16 @@ void drawScene(void)
                 DisplayHelper::ChangeBackground(GameHelper::bkgCometMode);
             }
 
+
+            // Lane delimitation
+            // * 4 lanes
+            // * 5 delimiters
+            if (currentTheme == 1)
+                glColor3f(0.3, 0.28, 0.4);
+            else if (currentTheme == 2)
+                glColor3f(0.43, 0.41, 0.39);
+
             // 1st delimiter
-            glColor3f(0.3, 0.28, 0.4);
 
             glBegin(GL_POLYGON);
             glVertex2i(0, 0); // down left
@@ -528,7 +580,8 @@ void drawScene(void)
             glEnd();
         }
 
-
+        string scoreText = "Score: " + to_string(GameHelper::score);
+        RenderString(20.0f, 770.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)scoreText.c_str());
 
         {
             //draw rocket
@@ -608,7 +661,7 @@ void drawScene(void)
         else
             contor = 0;
 
-        // meteorites
+        // asteroids
         glPushMatrix();
         glTranslated(m.GetX(), m.GetY(), 0.0);
 
@@ -621,11 +674,16 @@ void drawScene(void)
         glRecti(50, 20, 58, 28);
         glPopMatrix();
 
+        glPopMatrix();
+
         // comets
         glPushMatrix();
         glTranslatef(c.GetX(), c.GetY(), 0.0);
         // tail
-        glColor3f(0.82, 0.4, 0.03);
+        if (currentTheme == 1)
+            glColor3f(0.82, 0.4, 0.03);
+        else if (currentTheme == 2)
+            glColor3f(0.68, 0.99, 0.98);
         glBegin(GL_POLYGON);
         glVertex2i(7.5, 15);
         glVertex2i(60, 25);
@@ -633,7 +691,10 @@ void drawScene(void)
         glVertex2i(60, 5);
         glEnd();
         // body
-        glColor3f(1.0, 0.8, 0.5);
+        if (currentTheme == 1)
+            glColor3f(1.0, 0.8, 0.5);
+        else if (currentTheme == 2)
+            glColor3f(0.16, 0.51, 0.48);
         // rhombus horizontal
         glBegin(GL_POLYGON);
         glVertex2i(0, 15);
@@ -649,7 +710,10 @@ void drawScene(void)
         glVertex2i(15, 30);
         glEnd();
         // rhombus center
-        glColor3f(0.82, 0.4, 0.03);
+        if (currentTheme == 1)
+            glColor3f(0.82, 0.4, 0.03);
+        else if (currentTheme == 2)
+            glColor3f(0.68, 0.99, 0.98);
         glBegin(GL_POLYGON);
         glVertex2i(10.25, 15);
         glVertex2i(15, 10.25);
@@ -731,6 +795,8 @@ void keyboardSpecial(int key, int x, int y)
 
 int main(int argc, char** argv)
 {
+    int menuTheme, menuMain;
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
     glutInitWindowSize(800, 800);
@@ -741,6 +807,16 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboardNormal);
     glutSpecialFunc(keyboardSpecial);
+
+    menuTheme = glutCreateMenu(callback_theme);
+    glutAddMenuEntry("Classic", 1);
+    glutAddMenuEntry("Asteroids belt (hard)", 2);
+
+    menuMain = glutCreateMenu(callback_main);
+    glutAddSubMenu("Mode ", menuTheme);
+    glutAddMenuEntry("Exit", 0);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+
     glutMainLoop();
 }
 
