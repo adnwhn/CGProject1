@@ -1,9 +1,11 @@
 #include "Utils.cpp"
+#include <string>
 
 using namespace std;
 
 #pragma once
 #pragma comment(lib, "Winmm.lib")
+
 
 
 GLdouble left_m = 0.0;
@@ -14,7 +16,6 @@ GLdouble top_m = 800.0;
 double ok = 1;
 double i = 0.0;
 double contor = 0;
-double loc_vert = 800;
 int vector[4] = { 85, 275, 465, 655 };
 double height = vector[rand() % 4];
 int GameHelper::score = 0;
@@ -24,6 +25,16 @@ Rocket r(0.0, 85.0, 90.0, 30.0);
 Meteorite m(800., vector[rand() % 4], 30., 30.);
 int GameHelper::startGame = 0;
 char* DisplayHelper::sound_file = const_cast<char*>(".wav");
+double starScaleFactor = 1.;
+double step = 0.0001;
+double rotationAngle = 0.;
+double angleStep = 0.01;
+Comet c(600., vector[rand() % 4]);
+bool GameHelper::immunity = false;
+int GameHelper::immunityc = 0;
+Color GameHelper::bkg;
+GameHelper::Mode GameHelper::mode = GameHelper::Mode::normal;
+Color GameHelper::bkgCometMode;
 
 
 void GameHelper::SetStartGame(int sg) {
@@ -36,7 +47,22 @@ int GameHelper::GetStartGame() {
 
 bool GameHelper::CheckCollision(Rocket ob, Meteorite ob2)
 {
-    return (ob2.GetY() == ob.GetY() && (m.GetX() > 45 && m.GetX() < 90));
+    return (ob2.GetY() == ob.GetY() && (m.GetX() > 45 && m.GetX() < 90) && !GameHelper::immunity);
+}
+
+bool GameHelper::CheckCollision(Rocket ob, Comet ob2)
+{
+    if (ob2.GetY() == ob.GetY() && (c.GetX() > 45 && c.GetX() < 90))
+    {
+
+        GameHelper::immunity = true;
+        GameHelper::mode = GameHelper::Mode::immunity;
+        GameHelper::immunityc = 400;
+        cout << "ON Immunity\n";
+    }
+
+    // return false so game can continue
+    return false;
 }
 
 Rocket::Rocket(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
@@ -65,6 +91,16 @@ void DisplayHelper::StartMusic()
     PlaySound((LPCTSTR)sound_file, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
 }
 
+void DisplayHelper::StopMusic()
+{
+    PlaySound(NULL, 0, 0);
+}
+
+void DisplayHelper::ChangeBackground(Color c)
+{
+    glClearColor(c.r, c.g, c.b, 1.0);
+}
+
 const GLdouble Object::GetX()
 {
     return x;
@@ -85,23 +121,27 @@ void Object::SetY(GLdouble newY)
     y = newY;
 }
 
-
-
-
-
-
-bool Rocket::OnMeteoriteCrash(Meteorite& m)
+Comet::Comet(GLdouble x, GLdouble y)
 {
-    return true;
+    SetX(x);
+    SetY(y);
 }
-
 
 
 void init(void)
 {
-    glClearColor(0.22, 0.2, 0.3, 0.0);
+    GameHelper::bkg.r = 0.22;
+    GameHelper::bkg.g = 0.2;
+    GameHelper::bkg.b = 0.3;
+    GameHelper::bkgCometMode.r = 0.45;
+    GameHelper::bkgCometMode.g = 0.45;
+    GameHelper::bkgCometMode.b = 0.62;
+
+
+    DisplayHelper::ChangeBackground(GameHelper::bkg);
     glMatrixMode(GL_PROJECTION);
     glOrtho(left_m, right_m, bottom_m, top_m, -1.0, 1.0);
+
 
 }
 
@@ -115,25 +155,51 @@ void RenderString(float x, float y, void* font, const unsigned char* string)
 void startgame(void)
 {
 
-    if (GameHelper::CheckCollision(r, m))
+    if (GameHelper::CheckCollision(r, m) || GameHelper::CheckCollision(r, c))
     {
         GameHelper::SetStartGame(2);
     }
     else
     {
+        int is = GameHelper::score;
         if (i < -380)
             i = 0;
         i = i - 2 * timp;
 
         m.SetX(m.GetX() - timp);
 
-        if (m.GetX() < -150)
+        c.SetX(c.GetX() - timp);
+
+        if (m.GetX() < -150 || c.GetX() < -6000)
         {
             GameHelper::score += 100;
+            if (GameHelper::immunity)
+            {
+                GameHelper::immunityc -= 100;
+                cout << "Immunity: " << GameHelper::immunityc << '\n';
+                if (GameHelper::immunityc == 0)
+                {
+                    GameHelper::immunity = false;
+                    GameHelper::mode = GameHelper::Mode::normal;
+                    cout << "NO Immunity \n";
+                }
+
+            }
+        }
+
+        if (m.GetX() < -150)
+        {
             m.SetY(vector[rand() % 4]);
-            cout << "Score:  " << GameHelper::score << endl;
             m.SetX(800.);
         }
+        if (c.GetX() < -6000)
+        {
+            c.SetY(vector[rand() % 4]);
+            c.SetX(800.);
+        }
+
+        if (GameHelper::score != is)
+            cout << "Score:  " << GameHelper::score << endl;
 
         if (GameHelper::score >= pct && pct <= 15000)
         {
@@ -143,34 +209,8 @@ void startgame(void)
 
         glutPostRedisplay();
     }
-    else
-    
-    
-    if (comet_y != r.GetY() || (comet_x > 90 || comet_x < -90))
-    {
-        if (i < -380)
-            i = 0;
-        i = i - 2 * timp;
-
-        comet_x -= timp;
-
-        if (comet_x < -6000)
-        {
-            score += 100;
-            comet_y = vector[rand() % 4];
-            cout << "Score:  " << score << endl;
-            comet_x = 800;
-        }
-
-        if (score >= pct && pct <= 15000)
-        {
-            timp += 0.1;
-            pct += 1000;
-        }
-
-        glutPostRedisplay();
-    }
 }
+
 
 void scaleStars(void)
 {
@@ -295,7 +335,7 @@ void drawScene(void)
             glEnd();
             glPopMatrix();
         }
-        
+
         // small stars
         {
             // 1st left
@@ -358,7 +398,7 @@ void drawScene(void)
             glEnd();
             glPopMatrix();
         }
-        
+
         scaleStars();
 
         //draw rocket
@@ -421,9 +461,9 @@ void drawScene(void)
 
             glPopMatrix();
         }
-        
+
         rotateRocket();
-        
+
     }
     else {
 
@@ -431,6 +471,15 @@ void drawScene(void)
             // Lane delimitation
             // * 4 lanes
             // * 5 delimiters
+
+            switch (GameHelper::mode)
+            {
+            case GameHelper::Mode::normal:
+                DisplayHelper::ChangeBackground(GameHelper::bkg);
+                break;
+            case GameHelper::Mode::immunity:
+                DisplayHelper::ChangeBackground(GameHelper::bkgCometMode);
+            }
 
             // 1st delimiter
             glColor3f(0.3, 0.28, 0.4);
@@ -443,7 +492,6 @@ void drawScene(void)
             glEnd();
 
             // 2nd delimiter
-            glColor3f(0.3, 0.28, 0.4);
 
             glBegin(GL_POLYGON);
             glVertex2i(0, 190); // down left
@@ -453,7 +501,6 @@ void drawScene(void)
             glEnd();
 
             // 3rd delimiter
-            glColor3f(0.3, 0.28, 0.4);
 
             glBegin(GL_POLYGON);
             glVertex2i(0, 380); // down left
@@ -463,7 +510,6 @@ void drawScene(void)
             glEnd();
 
             // 4th delimiter
-            glColor3f(0.3, 0.28, 0.4);
 
             glBegin(GL_POLYGON);
             glVertex2i(0, 570); // down left
@@ -473,7 +519,6 @@ void drawScene(void)
             glEnd();
 
             // 5th delimiter
-            glColor3f(0.3, 0.28, 0.4);
 
             glBegin(GL_POLYGON);
             glVertex2i(0, 760); // down left
@@ -547,11 +592,13 @@ void drawScene(void)
             glPopMatrix();
         }
 
-        
+
 
         if (GameHelper::GetStartGame() == 2) {
             //game over
-            RenderString(345.0f, 395.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"GAME OVER");
+            string scoremsg = "Score: " + to_string(GameHelper::score);
+            RenderString(345.0f, 400.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"GAME OVER");
+            RenderString(355.0f, 380.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)(scoremsg.c_str()));
         }
 
         if (contor == 1 && (r.GetY() != 275 && r.GetY() != 465 && r.GetY() != 655))
@@ -566,23 +613,17 @@ void drawScene(void)
         glTranslated(m.GetX(), m.GetY(), 0.0);
 
         glColor3f(0.4, 0.4, 0.4);
-        glBegin(GL_POLYGON);
-        glVertex2i(45, 15);
-        glVertex2i(45, 37);
-        glVertex2i(62, 37);
-        glVertex2i(62, 45);
-        glVertex2i(75, 45);
-        glVertex2i(75, 38);
-        glVertex2i(65, 38);
-        glVertex2i(45, 38);
-        glEnd();
+
+        glRecti(45, 15, 65, 38);
+        glRecti(62, 38, 75, 45);
 
         glColor3f(0.56, 1., 1.);
         glRecti(50, 20, 58, 28);
+        glPopMatrix();
 
         // comets
         glPushMatrix();
-        glTranslatef(comet_x, comet_y, 0.0);
+        glTranslatef(c.GetX(), c.GetY(), 0.0);
         // tail
         glColor3f(0.82, 0.4, 0.03);
         glBegin(GL_POLYGON);
@@ -623,6 +664,7 @@ void drawScene(void)
     glutPostRedisplay();
     glutSwapBuffers();
     glFlush();
+
 
 }
 
@@ -666,7 +708,8 @@ void miscajos(void)
 
 void keyboardNormal(unsigned char key, int xx, int yy)
 {
-    switch (key) {
+    switch (key)
+    {
     case 's':
         GameHelper::SetStartGame(1);
         break;
@@ -698,6 +741,6 @@ int main(int argc, char** argv)
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboardNormal);
     glutSpecialFunc(keyboardSpecial);
-
     glutMainLoop();
 }
+
