@@ -6,7 +6,14 @@ using namespace std;
 #pragma once
 #pragma comment(lib, "Winmm.lib")
 
+#pragma once
+#pragma comment(lib, "Winmm.lib")
 
+
+GLdouble left_m = 0.0;
+GLdouble right_m = 800.0;
+GLdouble bottom_m = 0.0;
+GLdouble top_m = 800.0;
 GLdouble left_m = 0.0;
 GLdouble right_m = 800.0;
 GLdouble bottom_m = 0.0;
@@ -128,6 +135,31 @@ Comet::Comet(GLdouble x, GLdouble y)
 }
 
 
+GLdouble left_m = 0.0;
+GLdouble right_m = 800.0;
+GLdouble bottom_m = 0.0;
+GLdouble top_m = 800.0;
+
+double ok = 1;
+double i = 0.0;
+double contor = 0;
+double loc_vert = 800;
+int vector[4] = { 40, 230, 420, 610 };
+//int vector[4] = {0, 160, 320, 480};
+double height = vector[rand() % 4];
+int score = 0;
+double timp = 0.15;
+int pct = 1000;
+Rocket r(0.0, 40.0);
+int GameHelper::startGame = 0;
+//double rsj, rdj, rss, rds = 0;
+double starScaleFactor = 1.;
+double step = 0.0001;
+double rotationAngle = 0.;
+double angleStep = 0.01;
+double comet_x = 600;
+double comet_y = vector[rand() % 4];
+
 void init(void)
 {
     GameHelper::bkg.r = 0.22;
@@ -141,6 +173,7 @@ void init(void)
     DisplayHelper::ChangeBackground(GameHelper::bkg);
     glMatrixMode(GL_PROJECTION);
     glOrtho(left_m, right_m, bottom_m, top_m, -1.0, 1.0);
+
 
 }
 
@@ -165,6 +198,7 @@ void startgame(void)
             i = 0;
         i = i - 2 * timp;
 
+        m.SetX(m.GetX() - timp);
         m.SetX(m.GetX() - timp);
 
         c.SetX(c.GetX() - timp);
@@ -208,6 +242,7 @@ void startgame(void)
 
         glutPostRedisplay();
     }
+}
 }
 
 void scaleStars(void)
@@ -600,7 +635,9 @@ void drawScene(void)
         }
 
         if (contor == 1 && (r.GetY() != 275 && r.GetY() != 465 && r.GetY() != 655))
+        if (contor == 1 && (r.GetY() != 275 && r.GetY() != 465 && r.GetY() != 655))
             r.SetY(r.GetY() + 1);
+        else if (contor == -1 && (r.GetY() != 465 && r.GetY() != 275 && r.GetY() != 85))
         else if (contor == -1 && (r.GetY() != 465 && r.GetY() != 275 && r.GetY() != 85))
             r.SetY(r.GetY() - 1);
         else
@@ -608,6 +645,7 @@ void drawScene(void)
 
         // meteorites
         glPushMatrix();
+        glTranslated(m.GetX(), m.GetY(), 0.0);
         glTranslated(m.GetX(), m.GetY(), 0.0);
 
         glColor3f(0.4, 0.4, 0.4);
@@ -657,11 +695,13 @@ void drawScene(void)
         glPopMatrix();
 
         startgame();
+        startgame();
     }
 
     glutPostRedisplay();
     glutSwapBuffers();
     glFlush();
+
 
 }
 
@@ -677,6 +717,7 @@ void reshape(int w, int h)
 
 void miscasus(void)
 {
+    if (GameHelper::GetStartGame() != 2)
     if (GameHelper::GetStartGame() != 2)
     {
         if (r.GetY() < 655)
@@ -694,6 +735,7 @@ void miscajos(void)
     if (GameHelper::GetStartGame() != 2)
     {
         if (r.GetY() > 85)
+        if (r.GetY() > 85)
         {
             contor = -1;
             r.SetY(r.GetY() - 1);
@@ -705,6 +747,8 @@ void miscajos(void)
 
 void keyboardNormal(unsigned char key, int xx, int yy)
 {
+    switch (key) {
+    case 's':
     switch (key) {
     case 's':
         GameHelper::SetStartGame(1);
