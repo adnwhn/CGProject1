@@ -23,10 +23,6 @@ int pct = 1000;
 Rocket r(0.0, 85.0, 90.0, 30.0);
 Asteroid m(800., vector[rand() % 4], 30., 30.);
 int GameHelper::startGame = 0;
-char* DisplayHelper::sound_fileCOMET = const_cast<char*>("soundtrackCOMET-wav.wav");
-char* DisplayHelper::sound_fileINTRO = const_cast<char*>("sountrackINTRO-wav.wav");
-char* DisplayHelper::sound_filePLAY = const_cast<char*>("soundtrackPLAY-wav.wav");
-char* DisplayHelper::sound_fileLOSE = const_cast<char*>("soundtrackLOSE-wav.wav");
 
 double starScaleFactor = 1.;
 double step = 0.0001;
@@ -36,6 +32,7 @@ Comet c(600., vector[rand() % 4]);
 bool GameHelper::immunity = false;
 int GameHelper::immunityc = 0;
 GameHelper::Mode GameHelper::mode = GameHelper::Mode::normal;
+DisplayHelper::currentSound DisplayHelper::cSound = DisplayHelper::currentSound::intro;
 
 void GameHelper::SetStartGame(int sg) {
     startGame = sg;
@@ -54,7 +51,7 @@ bool GameHelper::CheckCollision(Rocket ob, Comet ob2)
 {
     if (ob2.GetY() == ob.GetY() && (c.GetX() > 45 && c.GetX() < 90))
     {
-
+        DisplayHelper::SoundConsole();
         GameHelper::immunity = true;
         GameHelper::mode = GameHelper::Mode::immunity;
         GameHelper::immunityc = 400;
@@ -88,22 +85,22 @@ Asteroid::Asteroid(GLdouble x, GLdouble y, GLdouble xdim, GLdouble ydim)
 
 void DisplayHelper::IntroMusic()
 {
-    PlaySound((LPCTSTR)sound_fileINTRO, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+    PlaySound(TEXT("sountrackINTRO-wav.wav"), NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
 }
 
 void DisplayHelper::PlayMusic()
 {
-    PlaySound((LPCTSTR)sound_filePLAY, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+    PlaySound(TEXT("soundtrackPLAY-wav.wav"), NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
 }
 
 void DisplayHelper::CometMusic()
 {
-    PlaySound((LPCTSTR)sound_fileCOMET, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+    PlaySound(TEXT("soundtrackCOMET-wav.wav"), NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
 }
 
 void DisplayHelper::LoseMusic()
 {
-    PlaySound((LPCTSTR)sound_fileLOSE, NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
+    PlaySound(TEXT("soundtrackLOSE-wav.wav"), NULL, SND_FILENAME | SND_LOOP | SND_ASYNC);
 }
 
 void DisplayHelper::StopMusic()
@@ -111,11 +108,49 @@ void DisplayHelper::StopMusic()
     PlaySound(NULL, 0, 0);
 }
 
+void DisplayHelper::SoundConsole()
+{
+    if (GameHelper::GetStartGame() == 0)  // intro
+    {
+        if (cSound != currentSound::intro)
+        {
+            IntroMusic();
+            cSound = currentSound::intro;
+        }
+    }
+    else if (GameHelper::GetStartGame() == 1)  // play
+    {
+        if (GameHelper::immunity)
+        {
+            if (cSound != currentSound::playComet)
+            {
+                CometMusic();
+                cSound = currentSound::playComet;
+            }
+        }
+        else
+        {
+            if (cSound != currentSound::play)
+            {
+                PlayMusic();
+                cSound = currentSound::play;
+            }
+        }
+    }
+    else if (GameHelper::GetStartGame() == 2) // lose
+    {
+        if (cSound != currentSound::lose)
+        {
+            LoseMusic();
+            cSound = currentSound::lose;
+        }
+    }
+}
+
 void DisplayHelper::ChangeBackground(Color c)
 {
     glClearColor(c.r, c.g, c.b, 1.0);
 }
-
 
 const GLdouble Object::GetX()
 {
@@ -146,15 +181,9 @@ Comet::Comet(GLdouble x, GLdouble y)
 
 void init(void)
 {
-    GameHelper::bkg.r = 0.22;
-    GameHelper::bkg.g = 0.2;
-    GameHelper::bkg.b = 0.3;
-    GameHelper::bkgCometMode.r = 0.45;
-    GameHelper::bkgCometMode.g = 0.45;
-    GameHelper::bkgCometMode.b = 0.62;
-
-
-    DisplayHelper::ChangeBackground(GameHelper::bkg);
+    DisplayHelper::StopMusic();
+    DisplayHelper::IntroMusic();
+    glClearColor(0.22, 0.2, 0.3, 0.0);
     glMatrixMode(GL_PROJECTION);
     glOrtho(left_m, right_m, bottom_m, top_m, -1.0, 1.0);
 }
@@ -173,7 +202,7 @@ void callback_theme(int key)
 }
 
 void RenderString(float x, float y, void* font, const unsigned char* string)
-{   
+{
     glColor3f(0.7f, 0.7f, 0.7f);
     glRasterPos2f(x, y);
     glutBitmapString(font, string);
@@ -185,6 +214,7 @@ void startgame(void)
     if (GameHelper::CheckCollision(r, m) || GameHelper::CheckCollision(r, c))
     {
         GameHelper::SetStartGame(2);
+        DisplayHelper::SoundConsole();
     }
     else
     {
@@ -206,6 +236,7 @@ void startgame(void)
                 cout << "Immunity: " << GameHelper::immunityc << '\n';
                 if (GameHelper::immunityc == 0)
                 {
+                    DisplayHelper::SoundConsole();
                     GameHelper::immunity = false;
                     GameHelper::mode = GameHelper::Mode::normal;
                     cout << "NO Immunity \n";
@@ -261,16 +292,20 @@ void rotateRocket(void)
 
 void drawScene()
 {
+    DisplayHelper::SoundConsole();
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (GameHelper::GetStartGame() == 0) {
         //start game
+
+
         if (currentTheme == 1)
             glClearColor(0.22, 0.2, 0.3, 0.0);
         else if (currentTheme == 2)
             glClearColor(0.24, 0.22, 0.19, 0.0);
-        
-        
+
+
         RenderString(340.0f, 470.0f, GLUT_BITMAP_HELVETICA_18, (const unsigned char*)"START GAME");
         RenderString(350.0f, 385.0f, GLUT_BITMAP_HELVETICA_12, (const unsigned char*)"Press \"s\" to start");
 
@@ -552,7 +587,7 @@ void drawScene()
                 else if (currentTheme == 2)
                     glColor3f(0.43, 0.41, 0.39);
             }
-            
+
             // 1st delimiter
 
             glBegin(GL_POLYGON);
@@ -724,7 +759,7 @@ void drawScene()
             else if (currentTheme == 2)
                 glColor3f(0.68, 0.99, 0.98);
         }
-        
+
         glBegin(GL_POLYGON);
         glVertex2i(7.5, 15);
         glVertex2i(60, 25);
@@ -827,9 +862,11 @@ void keyboardNormal(unsigned char key, int xx, int yy)
     {
     case 's':
         GameHelper::SetStartGame(1);
+        DisplayHelper::SoundConsole();
         break;
     case 'r':
         GameHelper::SetStartGame(0);
+        DisplayHelper::SoundConsole();
         ok = 1;
         i = 0.0;
         contor = 0;
@@ -886,4 +923,3 @@ int main(int argc, char** argv)
 
     glutMainLoop();
 }
-
